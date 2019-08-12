@@ -1,0 +1,147 @@
+import numpy as np
+import pylab as pl
+from hypergraphs.mert import Enumeration, Elem, Point, Viterbi, post_process
+from hypergraphs.apps.parser2 import parse, load_grammar
+
+
+def semiring_enumeration(sentence, rhs):
+    def binary(sentence,X,Y,Z,i,j,k):
+        return Enumeration([X])
+    def unary(sentence,X,Y,i,k):
+        return Enumeration([X])
+    def terminal(sentence,W,i):
+        return Enumeration([W])     # semiring one
+    zero = Enumeration([])
+    c = parse(sentence, rhs, binary, unary, terminal, zero)
+    return c[0,len(sentence),'S']
+
+
+def semiring_linesearch(sentence, rhs, weights, step, direction, binary_features, unary_features):
+
+    def binary(sentence,X,Y,Z,i,j,k):
+        fs = binary_features(sentence,X,Y,Z,i,j,k)
+        return Viterbi(weights[fs].sum() + step*direction[fs].sum(), X)
+
+    def unary(sentence,X,Y,i,k):
+        fs = unary_features(sentence,X,Y,i,k)
+        return Viterbi(weights[fs].sum() + step*direction[fs].sum(), X)
+
+    def terminal(sentence,W,i):
+        return Viterbi(0, W)     # semiring one
+
+    zero = Viterbi(float('-inf'), None)
+
+    c = parse(sentence, rhs, binary, unary, terminal, zero)
+    return c[0,len(sentence),'S']
+
+
+def semiring_mert(sentence, rhs, w, d, binary_features, unary_features):
+
+    def binary(sentence,X,Y,Z,i,j,k):
+        fs = binary_features(sentence,X,Y,Z,i,j,k)
+        return Elem([Point(w[fs].sum(), -d[fs].sum(), X)])
+
+    def unary(sentence,X,Y,i,k):
+        fs = unary_features(sentence,X,Y,i,k)
+        return Elem([Point(w[fs].sum(), -d[fs].sum(), X)])
+
+    def terminal(sentence,W,i):
+        return Elem([Point(0, 0, W)])     # semiring one
+
+    zero = Elem([])
+
+    c = parse(sentence, rhs, binary, unary, terminal, zero)
+    return c[0,len(sentence),'S']
+
+
+def main():
+    from arsenal.alphabet import Alphabet
+    from arsenal.maths import spherical
+
+    D = 100
+
+    alphabet = Alphabet(random_int=D)
+    weights = spherical(D)
+    direction = spherical(D)
+
+    #sentence = 'Papa ate the caviar with the spoon in the park .'.split()
+    sentence = 'Papa ate the caviar with the spoon .'.split()
+
+    if 0:
+        grammar = """
+        S       S .
+        S       NP VP
+        NP      D N
+        NP      NP PP
+        VP      V NP
+        VP      VP PP
+        PP      P NP
+        NP      Papa
+        N       caviar
+        N       spoon
+        N       park
+        V       ate
+        P       with
+        P       in
+        D       the
+        """
+
+    else:
+        grammar = """
+        S       X .
+        X       X X
+        X       Papa
+        X       ate
+        X       the
+        X       caviar
+        X       with
+        X       spoon
+        X       in
+        X       park
+        """
+
+    rhs = load_grammar(grammar)
+
+    if 1:
+        # This code branch enumerates all (exponentially many) valid
+        # derivations.
+        root = semiring_enumeration(sentence, rhs)
+        for d in root.x:
+            print(post_process(d))
+        assert len(root.x) == len(set(root.x))
+
+    def binary_features(sentence,X,Y,Z,i,j,k):
+        return alphabet.map(['%s -> %s %s [%s,%s,%s]' % (X,Y,Z,i,j,k)])
+
+    def unary_features(sentence,X,Y,i,k):
+        return alphabet.map(['%s -> %s [%s,%s]' % (X,Y,i,k)])
+
+    root = semiring_mert(sentence, rhs, weights, direction, binary_features, unary_features)
+
+    mert_derivations = [] #set()
+    for x in root.points:
+        print(x)
+        d = x.derivation()
+        mert_derivations.append(d)
+
+    assert len(mert_derivations) == len(set(mert_derivations))
+    #root.draw()
+
+    # Compare the set of derivations found by the MERT semiring to 'brute force'
+    # linesearch. Note: Linesearch might only find a subset of derivations found
+    # by MERT if the grid isn't fine enough.
+    brute_derivations = set()
+    for step in np.linspace(-20,20,1000):
+        root = semiring_linesearch(sentence, rhs, weights, step, direction, binary_features, unary_features)
+        d = root.derivation()
+        brute_derivations.add(d)
+
+    # NOTE: need to take upper hull of mert (so it's currently an over estimate)
+    print('mert:', len(mert_derivations))
+    print('brute:', len(brute_derivations))
+    assert brute_derivations.issubset(mert_derivations)
+
+
+if __name__ == '__main__':
+    main()
+    pl.show()
