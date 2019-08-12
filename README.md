@@ -1,11 +1,9 @@
-Reference implementation of various hypergraph algorithms with an emphasis on
-clarity and generality over performance.
-
-If you have questions about this code, please let me know.
+This is a reference implementation of various hypergraph algorithms with an
+emphasis on clarity and generality over performance.
 
 I have decided to release it in a somewhat rough state.  I am happy to expand it
-in a number of ways if there is a demand for it.
-
+in a number of ways if there is a demand for it.  If you have any questions
+about this code, please let me know.
 
 However, even in its current state, I believe that there is a lot of useful
 stuff worked out and implemented.  Most notable are the advanced dynamic
