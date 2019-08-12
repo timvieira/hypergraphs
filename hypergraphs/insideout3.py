@@ -1,5 +1,5 @@
-from notes.hypergraph.hypergraph import Hypergraph
-from notes.hypergraph.logval import LogVal, LogValVector
+from hypergraphs.hypergraph import Hypergraph
+from hypergraphs.logval import LogVal, LogValVector
 
 
 def inside_outside_speedup(E, root):
