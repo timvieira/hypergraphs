@@ -21,7 +21,7 @@ and
 ```bibtex
 @software{vieira-hypergraphs,
   author = {Tim Vieira},
-  title = {hypergraphs: A reference implementation of hypergraph algorithms},
+  title = {hypergraphs: A reference implementation of basic and advanced hypergraph algorithms},
   url = {https://github.com/timvieira/hypergraphs}
 }
 ```
