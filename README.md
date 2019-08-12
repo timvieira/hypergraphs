@@ -14,3 +14,14 @@ programming algorithms presented in
 and
 
 > Dyer (2013) [Minimum Error Rate Training and the Convex Hull Semiring](https://arxiv.org/abs/1307.3675)
+
+
+If you find this useful, please cite it as
+
+```bibtex
+@software{vieira-hypergraphs,
+  author = {Tim Vieira},
+  title = {hypergraphs: A reference implementation of hypergraph algorithms},
+  url = {https://github.com/timvieira/hypergraphs}
+}
+```
