@@ -1,6 +1,5 @@
 import numpy as np
 from collections import defaultdict
-from arsenal.timer import timeit
 from arsenal.iterview import iterview
 from numpy.random import uniform
 from nltk.tree import ImmutableTree as Tree
@@ -43,8 +42,7 @@ def sum_product(forest):
 def _test_sample_tree(example, grammar, N):
 #    gold = {(X,I,K) for (X,I,K) in example.gold_items if (I,K) in example.nodes}
     print()
-    with timeit('build %.2fs'):
-        _forest = parse_forest(example, grammar)
+    _forest = parse_forest(example, grammar)
     # apply temperature to grammar rules
     forest = Hypergraph()
     forest.root = _forest.root

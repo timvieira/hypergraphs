@@ -71,7 +71,7 @@ class Hypergraph(object):
 
     def graphviz(self, output):
         from arsenal.iterextras import window
-        with file(output, 'wb') as f:
+        with open(output, 'wb') as f:
             print('digraph {', file=f)
             terminals = set()
             for x in list(self.incoming):
