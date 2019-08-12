@@ -16,8 +16,8 @@ and
 > Dyer (2013) [Minimum Error Rate Training and the Convex Hull Semiring](https://arxiv.org/abs/1307.3675)
 
 
-If you find this useful, please cite it as
 
+**Citation:** If you found this useful, please cite it as
 ```bibtex
 @software{vieira-hypergraphs,
   author = {Tim Vieira},
