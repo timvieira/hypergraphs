@@ -1,0 +1,173 @@
+from collections import defaultdict, namedtuple
+
+
+Edge = namedtuple('Edge', 'weight, head, body')
+
+
+class Hypergraph(object):
+
+    def __init__(self, debug=False):
+        self.incoming = defaultdict(list)
+        self.outgoing = defaultdict(list)
+        self.edges = []
+        self.root = None
+
+        # DEBUGGING
+        self.debug = debug
+        if self.debug:
+            self.USED = defaultdict(lambda: False)
+
+    def __repr__(self):
+        return 'Hypergraph(nodes=%s, edges=%s)' % (len(self.incoming),
+                                                   len(self.edges))
+
+    def edge(self, weight, head, *body):
+        e = Edge(weight, head, body)
+
+        if self.debug:
+            # check that we add edges in a valid topological ordering by
+            # ensuring that when we don't added an incoming edge to a node that
+            # we've already used. (Here "used" means that a node appears in the
+            # body of another edge).
+            for b in body:
+                self.USED[b] = True
+            if self.USED[head]:
+                print()
+                print('violates topo:', e)
+                print('  edges using %s:' % (head,))
+                for ee in self.outgoing[head]:
+                    print('   ', ee)
+            assert not self.USED[head]
+
+        self.incoming[e.head].append(e)
+        self.edges.append(e)
+        for b in e.body:
+            self.outgoing[b].append(e)
+        return e
+
+    def terminals(self):
+        terminals = set()
+        for e in self.edges:
+            for b in e.body:
+                if not self.incoming[b]:
+                    terminals.add(b)
+        return terminals
+
+    def toposort(self):
+        visited = set()
+
+        def t(v):
+            if v not in visited:
+                visited.add(v)
+                if self.incoming[v]:
+                    for e in self.incoming[v]:
+                        for u in e.body:
+                            for b in t(u):  # "yield from" recursive call
+                                yield b
+                    yield v
+
+        assert self.root is not None
+        return t(self.root)
+
+    def graphviz(self, output):
+        from arsenal.iterextras import window
+        with file(output, 'wb') as f:
+            print('digraph {', file=f)
+            terminals = set()
+            for x in list(self.incoming):
+                for e in self.incoming[x]:
+                    print('  "%s" [label=\"\",shape=point];' % id(e), file=f)
+                    print('  "%s" -> "%s";' % (id(e), e.head), file=f)
+                    for b in e.body:
+                        print('  "%s" -> "%s" [arrowhead=none];' % (b, id(e)), file=f)
+                        if not self.incoming[b]:
+                            terminals.add(b)
+            if terminals:
+                print(terminals)
+                f.write('{ rank = same; %s; }\n' % ('; '.join('"%s"' % (x,) for x in terminals)))
+                for a, b in window(sorted(terminals, key=lambda x: x[0]), 2):
+                    f.write('"%s" -> "%s" [dir=none, style=invis, penwidth=1];\n' % (a, b))
+                    f.write('{ rank = same; "%s"; "%s"; }\n' % (a,b))
+            print('}', file=f)
+
+    def show(self, prefix='/tmp/hypergraph', gopen=True):
+        from os import system
+        self.graphviz(prefix + '.dot')
+        system('(dot -Tsvg {prefix}.dot > {prefix}.svg) 2>/dev/null'.format(prefix=prefix))
+        if gopen:
+            system('google-chrome {prefix}.svg 2>/dev/null &'.format(prefix=prefix))
+
+    def inside(self, zero):
+        "Run inside algorithm on hypergraph `g` in a given semiring."
+        B = defaultdict(zero)
+        for x in self.toposort():
+            for e in self.incoming[x]:
+                v = e.weight
+                for b in e.body:
+                    v = v * B[b]
+                B[x] += v
+        return B
+
+    def outside(self, B, zero, one):
+        "Run outside algorithm on hypergraph `g` in a given semiring."
+        A = defaultdict(zero)
+        A[self.root] = one()
+        for v in reversed(list(self.toposort())):
+            for e in self.incoming[v]:
+                for u in e.body:
+                    z = A[v] * e.weight
+                    for w in e.body:
+                        if w != u:
+                            z = z * B[w]
+                    A[u] += z
+        return A
+
+    def insideout(self, A, B, X, zero):
+        """Inside-outside algorithm.
+
+        - `X`: Function of the `edge => X`.
+
+          Elements of X must form a K-module (where K is the type of `A` and
+          `B`). Th key operation is left-multiplication by type `K` which
+          distributes over addition: (x_1 + x_2) k_1 = x_1 k_1 + x_2 k_1.
+
+        - `zero`: Allocate a zero of type `X`.
+
+        """
+        xhat = zero()
+        for e in self.edges:
+            kbar = A[e.head]
+            for b in e.body:
+                kbar *= B[b]
+            xhat += X(e) * kbar
+        return xhat
+
+    def _prune_topo(self):
+        return self.prune_nodes(set(self.toposort()))
+
+    def prune_topo(self, verbose=0):
+        """
+        Eliminate nodes/edges from hypergraph which don't feed into any valid
+        derivations of the root node.
+        """
+        # TODO: we shouldn't need to run topo-pruning to fixed point.
+        r = 0
+        prev = self
+        while True:
+            if verbose:
+                print('prune round', r, prev)
+            curr = prev._prune_topo()
+            if len(curr.edges) == len(prev.edges):
+                break
+            prev = curr
+            r += 1
+        return curr
+
+    def prune_nodes(self, nodes):
+        "Prune graph down to a set of nodes."
+        g = Hypergraph()
+        for e in self.edges:
+            if e.head in nodes and all(b in nodes for b in e.body):
+                g.edge(e.weight, e.head, *e.body)
+        g.root = self.root
+        return g
