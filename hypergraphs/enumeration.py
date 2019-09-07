@@ -29,9 +29,6 @@ class Enumeration(object):
             return other
         if other.x == [None]:  # multiplication by one.
             return self
-
-        print('MUL', self.x, other.x)
-
         return Enumeration([x * y for x in self.x for y in other.x])
 
     def __repr__(self):
