@@ -14,12 +14,12 @@ def inside_outside_speedup(E, root):
         ke = ExpectationSemiring(p, p*r)
         g.edge(ke, *e)
 
-    B = g.inside(zero=ExpectationSemiring.Zero)
-    A = g.outside(B, zero=ExpectationSemiring.Zero, one=ExpectationSemiring.One)
+    B = g.inside(zero=ExpectationSemiring.zero)
+    A = g.outside(B, zero=ExpectationSemiring.zero, one=ExpectationSemiring.one)
 
     # The (s,t) component is an efficient linear combination with coefficients
     # from the cheap semiring.
-    xhat = AccumulatorModule.Zero()
+    xhat = AccumulatorModule.zero()
     for e, (p,r,s) in E.items():
         kebar = A[e[0]]
         for u in e[1:]:
@@ -38,11 +38,11 @@ class ExpectationSemiring(object):
     def __mul__(self, x):
         return ExpectationSemiring(self.p * x.p, self.p * x.r + x.p * self.r)
     @classmethod
-    def Zero(cls):
-        return cls(LogVal.Zero(), LogVal.Zero())
+    def zero(cls):
+        return cls(LogVal.zero(), LogVal.zero())
     @classmethod
-    def One(cls):
-        return cls(LogVal.One(), LogVal.Zero())
+    def one(cls):
+        return cls(LogVal.one(), LogVal.zero())
     def __repr__(self):
         return '(%s,%s)' % (self.p, self.r)
 
@@ -52,8 +52,8 @@ class AccumulatorModule(object):
         self.s = s
         self.t = t
     @classmethod
-    def Zero(cls):
-        return cls(LogValVector.Zero(), LogValVector.Zero())
+    def zero(cls):
+        return cls(LogValVector.zero(), LogValVector.zero())
     def __add__(self, x):
         return AccumulatorModule(self.s + x.s,
                                  self.t + x.t)

@@ -35,11 +35,11 @@ class Enumeration(object):
         return 'Enumeration(%s)' % self.x
 
     @classmethod
-    def Zero(self):
+    def zero(self):
         return Enumeration([])
 
     @classmethod
-    def One(self):
+    def one(self):
         return Enumeration([None])
 
 
@@ -89,5 +89,5 @@ def enumerate_derivations(E, root):
             g.edge(ke, x)
 
     # Inside algorithm for computing the same stuff as above more efficiently.
-    B = g.inside(zero=Enumeration.Zero)
+    B = g.inside(zero=Enumeration.zero)
     return B[g.root]

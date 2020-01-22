@@ -25,9 +25,9 @@ class Semiring2:
         self.t = t
 
     @classmethod
-    def Zero(cls):
-        return cls(LogVal.Zero(),
-                   LogVal.Zero(),
+    def zero(cls):
+        return cls(LogVal.zero(),
+                   LogVal.zero(),
                    LogValVector(),
                    LogValVector())
 
@@ -35,9 +35,9 @@ class Semiring2:
         return repr((self.p, self.r, self.s, self.t))
 
     @staticmethod
-    def One():
-        return Semiring2(LogVal.One(),
-                         LogVal.Zero(),
+    def one():
+        return Semiring2(LogVal.one(),
+                         LogVal.zero(),
                          LogValVector(),
                          LogValVector())
 
@@ -66,17 +66,17 @@ class Semiring1:
         self.r = r
 
     @classmethod
-    def Zero(cls):
-        return cls(LogVal.Zero(),
-                   LogVal.Zero())
+    def zero(cls):
+        return cls(LogVal.zero(),
+                   LogVal.zero())
 
     def __repr__(self):
         return repr((self.p, self.r, self.s, self.t))
 
     @staticmethod
-    def One():
-        return Semiring1(LogVal.One(),
-                         LogVal.Zero())
+    def one():
+        return Semiring1(LogVal.one(),
+                         LogVal.zero())
 
     def __add__(self, y):
         return Semiring1(self.p + y.p,
@@ -102,21 +102,21 @@ def secondorder_expectation_semiring(E, root):
         g.edge(ke, *e)
 
     # Inside algorithm for computing the same stuff as above more efficiently.
-    B = g.inside(zero=Semiring2.Zero)
+    B = g.inside(zero=Semiring2.zero)
     return B[g.root]
 
 
 def brute_force(derivations, E):
     "Brute-force enumeration method for computing (Z, rbar, sbar, tbar)."
-    Z = LogVal(0)
-    rbar = LogVal(0)
+    Z = LogVal.zero()
+    rbar = LogVal.zero()
     sbar = LogValVector()
     tbar = LogValVector()
     for d in derivations:
         #print
         #print 'Derivation:', d
-        rd = LogVal(0)
-        pd = LogVal(1)
+        rd = LogVal.zero()
+        pd = LogVal.one()
         sd = LogValVector()
         for [x,[y,z]] in tree_edges(d):
             (p,r,s) = E[x,y,z]
@@ -144,28 +144,28 @@ def small():
     # to each edge.
     E = {
         ('(0,3)', '(0,2)', '(2,3)'): (
-            LogVal(10),
-            LogVal(1),
-            LogValVector({'023': LogVal(1), '23': LogVal(1)}),
+            LogVal.lift(10),
+            LogVal.lift(1),
+            LogValVector({'023': LogVal.lift(1), '23': LogVal.lift(1)}),
         ),
         ('(0,2)', '(0,1)', '(1,2)'): (
-            LogVal(10),
-            LogVal(1),
-            LogValVector({'012': LogVal(1)}),
+            LogVal.lift(10),
+            LogVal.lift(1),
+            LogValVector({'012': LogVal.lift(1)}),
         ),
         ('(0,3)', '(0,1)', '(1,3)'): (
-            LogVal(20),
-            LogVal(1),
-            LogValVector({'013': LogVal(1)}),
+            LogVal.lift(20),
+            LogVal.lift(1),
+            LogValVector({'013': LogVal.lift(1)}),
         ),
         ('(1,3)', '(1,2)', '(2,3)'): (
-            LogVal(10),
-            LogVal(3),
-            LogValVector({'123': LogVal(1), '23': LogVal(1)}),
+            LogVal.lift(10),
+            LogVal.lift(3),
+            LogValVector({'123': LogVal.lift(1), '23': LogVal.lift(1)}),
         ),
-        ('(0,1)',): (LogVal(1), LogVal(0), LogValVector()),
-        ('(1,2)',): (LogVal(1), LogVal(0), LogValVector()),
-        ('(2,3)',): (LogVal(1), LogVal(0), LogValVector()),
+        ('(0,1)',): (LogVal.lift(1), LogVal.lift(0), LogValVector()),
+        ('(1,2)',): (LogVal.lift(1), LogVal.lift(0), LogValVector()),
+        ('(2,3)',): (LogVal.lift(1), LogVal.lift(0), LogValVector()),
     }
 
     # Define the root of all derivations hypergraph.
@@ -205,14 +205,14 @@ def fdcheck(E, root, eps=1e-4):
         g = Hypergraph()
         g.root = root
         for e,[_,r,f] in list(E.items()):
-            p = LogVal(np.exp(f.dot(W).to_real()))
+            p = LogVal.lift(np.exp(f.dot(W).to_real()))
             g.edge(Semiring1(p, p*r), *e)
-        B = g.inside(Semiring1.Zero)
+        B = g.inside(Semiring1.zero)
         Q = B[g.root]
         return Q.p.to_real(), Q.r.to_real(), (Q.r/Q.p).to_real()
 
     features = {k for [_,_,f] in E.values() for k in f}
-    W = LogValVector({k: LogVal(np.random.uniform(-1,1)) for k in features})
+    W = LogValVector({k: LogVal.lift(np.random.uniform(-1,1)) for k in features})
 
     # For gradient of risk we use <p, p*r, D[p], r*D[p]>, but my code computes
     # <p, p*r, p*s, p*r*s>, so we pass in s=D[p]/p.
@@ -223,7 +223,7 @@ def fdcheck(E, root, eps=1e-4):
     if 0:
         E1 = {}
         for e,[_,r,f] in list(E.items()):
-            p = LogVal(np.exp(f.dot(W).to_real()))
+            p = LogVal.lift(np.exp(f.dot(W).to_real()))
             E1[e] = (p,r,f*p)
 
         #S = secondorder_expectation_semiring(E, root)
@@ -233,7 +233,7 @@ def fdcheck(E, root, eps=1e-4):
     else:
         E1 = {}
         for e,[_,r,f] in list(E.items()):
-            p = LogVal(np.exp(f.dot(W).to_real()))
+            p = LogVal.lift(np.exp(f.dot(W).to_real()))
             E1[e] = (p,r,f)
 
         #S = secondorder_expectation_semiring(E, root)
@@ -250,9 +250,9 @@ def fdcheck(E, root, eps=1e-4):
     dd = []
     for k in features:
         was = W[k]
-        W.x[k] = was + LogVal(eps)
+        W.x[k] = was + LogVal.lift(eps)
         b_Z, b_rbar, b_risk = fn(W)
-        W.x[k] = was - LogVal(eps)
+        W.x[k] = was - LogVal.lift(eps)
         a_Z, a_rbar, a_risk = fn(W)
         W.x[k] = was
 

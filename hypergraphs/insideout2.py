@@ -55,8 +55,8 @@ def inside_outside_speedup(E, root):
         ke = ExpectationSemiring(p, p*r)
         g.edge(ke, *e)
 
-    B = inside(g, zero=ExpectationSemiring.Zero)
-    A = outside(g, B, zero=ExpectationSemiring.Zero, one=ExpectationSemiring.One)
+    B = inside(g, zero=ExpectationSemiring.zero)
+    A = outside(g, B, zero=ExpectationSemiring.zero, one=ExpectationSemiring.one)
 
     # The (s,t) component is an efficient linear combination with coefficients
     # from the cheap semiring.
@@ -65,7 +65,7 @@ def inside_outside_speedup(E, root):
 
     for e, (p,r,s) in E.items():
         x = e[0]
-        kebar = ExpectationSemiring.Zero()
+        kebar = ExpectationSemiring.zero()
         kebar.p = A[x].p
         kebar.r = A[x].r
         for u in e[1:]:
@@ -82,10 +82,10 @@ class ExpectationSemiring(object):
         self.p = p
         self.r = r
     @classmethod
-    def Zero(cls):
-        return cls(LogVal.Zero(), LogVal.Zero())
+    def zero(cls):
+        return cls(LogVal.zero(), LogVal.zero())
     @classmethod
-    def One(cls):
-        return cls(LogVal.One(), LogVal.Zero())
+    def one(cls):
+        return cls(LogVal.one(), LogVal.zero())
     def __repr__(self):
         return '(%s,%s)' % (self.p, self.r)

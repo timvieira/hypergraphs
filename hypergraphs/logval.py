@@ -52,9 +52,13 @@ def log1mexp(x):
 
 class LogVal:
 
-    def __init__(self, a):
-        self.pos = a >= 0
-        self.ell = log(abs(a))
+    def __init__(self, pos, ell):
+        self.pos = pos
+        self.ell = ell
+
+    @classmethod
+    def lift(cls, x):
+        return cls(x >= 0, log(abs(x)))
 
     def logeq(self, x):
         assert x <= 0, x
@@ -75,7 +79,7 @@ class LogVal:
     def __mul__(self, b):
         if not isinstance(b, LogVal):
             return b * self
-        c = LogVal(0.0)
+        c = LogVal.lift(0.0)
         if self.is_zero() or b.is_zero():
             return c
         c.pos = self.pos == b.pos
@@ -83,7 +87,7 @@ class LogVal:
         return c
 
     def __truediv__(self, b):
-        c = LogVal(0.0)
+        c = LogVal.lift(0.0)
         if self.is_zero():
             return c
         if b.is_zero():
@@ -95,13 +99,13 @@ class LogVal:
     __div__ = __truediv__
 
     def __sub__(self, b):
-        c = LogVal(0.0)
+        c = LogVal.lift(0.0)
         c.ell = b.ell
         c.pos = not b.pos
         return self + c
 
     def __add__(self, b):
-        c = LogVal(0.0)
+        c = LogVal.lift(0.0)
         a = self
         if a.ell < b.ell:
             a, b = b, a
@@ -130,13 +134,13 @@ class LogVal:
             c.ell = a.ell + log1pexp(x)
         return c
 
-    @staticmethod
-    def Zero():
-        return LogVal(0.0)
+    @classmethod
+    def zero(cls):
+        return cls.lift(0.0)
 
-    @staticmethod
-    def One():
-        return LogVal(1.0)
+    @classmethod
+    def one(cls):
+        return cls.lift(1.0)
 
     def __repr__(self):
 #        return 'LogVal(%g)' % self.to_real()
@@ -150,11 +154,11 @@ class LogVal:
 
 class LogValVector(object):
     def __init__(self, vals=None):
-        self.x = defaultdict(LogVal.Zero)
+        self.x = defaultdict(LogVal.zero)
         if vals is not None:
             self.x.update(vals)
     @classmethod
-    def Zero(cls):
+    def zero(cls):
         return cls()
     def __mul__(self, x):
         assert isinstance(x, LogVal), x
@@ -170,9 +174,9 @@ class LogValVector(object):
         return c
     __div__ = __truediv__
     def __sub__(self, x):
-        return self + LogVal(-1)*x
+        return self + LogVal.lift(-1)*x
     def dot(self, w):
-        v = LogVal.Zero()
+        v = LogVal.zero()
         for k in self:
             v += self[k]*w[k]
         return v

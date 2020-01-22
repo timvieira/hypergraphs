@@ -18,7 +18,7 @@ def sample(forest, B, v=None):
         # base case (leaf), nothing to sample
         return v
     # sample incoming edge, p(e|head) \propto edge.weight * (\prod_{b in e.body} beta[b])
-    Z = LogVal.Zero()
+    Z = LogVal.zero()
     cs = []
     for e in edges:
         p = e.weight
@@ -34,8 +34,8 @@ def sample(forest, B, v=None):
 
 def sum_product(forest):
     "Run inside-outside on forest (logprob)."
-    B = forest.inside(zero=LogVal.Zero)
-    A = forest.outside(B, zero=LogVal.Zero, one=LogVal.One)
+    B = forest.inside(zero=LogVal.zero)
+    A = forest.outside(B, zero=LogVal.zero, one=LogVal.one)
     return B, A
 
 
@@ -47,7 +47,7 @@ def _test_sample_tree(example, grammar, N):
     forest = Hypergraph()
     forest.root = _forest.root
     for e in _forest.edges:
-        c = LogVal.Zero()
+        c = LogVal.zero()
         c.logeq(e.weight)
         forest.edge(c, e.head, *e.body)
     # run inside-outside
