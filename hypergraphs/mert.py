@@ -43,7 +43,7 @@ class Point(object):
 
 
 class Elem(object):
-    """Convex hull semiring.
+    """Convex hull semiring (in two-dimensions).
 
     Each element of this semiring is a convex hull of `Points`.
 

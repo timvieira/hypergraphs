@@ -55,12 +55,13 @@ def semiring_mert(sentence, rhs, w, d, binary_features, unary_features):
 
 
 def main():
-    from arsenal.alphabet import Alphabet
+    from arsenal.integerizer import FeatureHashing
     from arsenal.maths import spherical
 
-    D = 100
+    bits = 8
+    D = 2**bits
 
-    alphabet = Alphabet(random_int=D)
+    alphabet = FeatureHashing(lambda x: abs(hash(x)), bits)
     weights = spherical(D)
     direction = spherical(D)
 
@@ -111,10 +112,10 @@ def main():
         assert len(root.x) == len(set(root.x))
 
     def binary_features(sentence,X,Y,Z,i,j,k):
-        return alphabet.map(['%s -> %s %s [%s,%s,%s]' % (X,Y,Z,i,j,k)])
+        return alphabet(['%s -> %s %s [%s,%s,%s]' % (X,Y,Z,i,j,k)])
 
     def unary_features(sentence,X,Y,i,k):
-        return alphabet.map(['%s -> %s [%s,%s]' % (X,Y,i,k)])
+        return alphabet(['%s -> %s [%s,%s]' % (X,Y,i,k)])
 
     root = semiring_mert(sentence, rhs, weights, direction, binary_features, unary_features)
 
