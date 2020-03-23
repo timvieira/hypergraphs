@@ -20,6 +20,9 @@ class Viterbi(object):
     def derivation(self):
         return _derivation(self)
 
+    def __repr__(self):
+        return f'{self.derivation()}'
+
 
 # XXX: possible duplicate with hypergraph project.
 #class Enumeration(object):
