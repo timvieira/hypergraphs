@@ -76,6 +76,9 @@ class LogVal:
         else:
             return -float(exp(self.ell))
 
+    lower = to_real
+    __float__ = to_real
+        
     def __mul__(self, b):
         if not isinstance(b, LogVal):
             return b * self

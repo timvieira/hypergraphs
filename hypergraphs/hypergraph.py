@@ -170,3 +170,13 @@ class Hypergraph(object):
                 g.edge(e.weight, e.head, *e.body)
         g.root = self.root
         return g
+
+    def apply(self, f):
+        "Transform this hypergraphs's edge weights via `f(edge) -> weight`."
+        H = Hypergraph()
+        H.root = self.root
+        for e in self.edges:
+            w = f(e)
+            if w is not None:
+                H.edge(w, e.head, *e.body)
+        return H
