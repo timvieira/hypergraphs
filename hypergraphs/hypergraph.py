@@ -62,8 +62,7 @@ class Hypergraph(object):
                 if self.incoming[v]:
                     for e in self.incoming[v]:
                         for u in e.body:
-                            for b in t(u):  # "yield from" recursive call
-                                yield b
+                            yield from t(u)
                     yield v
 
         assert self.root is not None
@@ -71,7 +70,7 @@ class Hypergraph(object):
 
     def graphviz(self, output):
         from arsenal.iterextras import window
-        with open(output, 'wb') as f:
+        with open(output, 'w') as f:
             print('digraph {', file=f)
             terminals = set()
             for x in list(self.incoming):

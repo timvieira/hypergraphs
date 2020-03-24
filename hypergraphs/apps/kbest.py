@@ -1,5 +1,4 @@
 import numpy as np
-from numpy.random import uniform
 from hypergraphs.hypergraph import Hypergraph
 from hypergraphs.apps.parse import parse_forest
 
@@ -74,9 +73,7 @@ def kbest_parses(example, grammar):
 
     # run inside-outside
     B = forest.inside(zero=lambda:zero)
-    Z = B[forest.root]
-
-    for x in Z:
+    for x in B[forest.root]:
         yield x.score, post_process(x.data)
 
 

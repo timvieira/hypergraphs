@@ -91,7 +91,7 @@ papa_grammar = Grammar.load("""
 # hypergraph object (maybe that could be done with a the "free" semring?).
 # XXX: One notable difference is that this implementation supports unrolling
 # unary chains for a finite number of steps.
-def parse_forest(sentence, grammar, steps=3):
+def parse_forest(sentence, grammar, steps=2):
     """Build parse forest for `sentence` under `grammar` using a few `steps` for
     time indexed unary steps (avoids cycles).
 
@@ -108,6 +108,21 @@ def parse_forest(sentence, grammar, steps=3):
         for K in range(N+1):
             span[I,K] = set()
 
+    def unary(I,K):
+        for T in range(steps-1):
+            # initialize time step with current value (might get overwritten)
+            for Y in set(span[I,K]):
+                # free unary rule Y->Y
+                edge(semione, (I,K,Y,T+1), (I,K,Y,T))
+                for r in grammar.r_y_x[Y]:
+                    X = r.parent
+                    edge(r.weight, (I,K,X,T+1), (I,K,Y,T))
+
+    def edge(w, x, *ys):
+        (I,K,X,_) = x
+        g.edge(w, x, *ys)
+        span[I,K].add(X)
+
     for I in range(N):
         Y = sentence[I]
         K = I + 1
@@ -116,42 +131,19 @@ def parse_forest(sentence, grammar, steps=3):
         # add preterminals
         for r in grammar.preterm[Y]:
             X = r.parent
-            g.edge(r.weight, (I,K,X,0), (I,K,Y,0))
-            span[I,K].add(X)
-        for T in range(steps-1):
-            # initialize time step with current value (might get overwritten)
-            for Y in set(span[I,K]):
-                left = (I,K,Y,T)
-                # free unary rule Y->Y
-                g.edge(semione, (I,K,Y,T+1), left)
-                for r in grammar.r_y_x[Y]:
-                    X = r.parent
-                    g.edge(r.weight, (I,K,X,T+1), left)
-                    span[I,K].add(X)
+            edge(r.weight, (I,K,X,0), (I,K,Y,0))
+        unary(I,K)
 
     for w in range(2, N+1):
         for I in range(N-w + 1):
             K = I + w
             for J in range(I+1, K):
                 for Y in span[I,J]:
-                    left = (I,J,Y,steps-1)
                     for br in grammar.r_y_xz[Y]:
                         X = br.parent
                         Z = br.right
-                        if Z not in span[J,K]:
-                            continue
-                        right = (J,K,Z,steps-1)
-                        g.edge(br.weight, (I,K,X,0), left, right)
-                        span[I,K].add(X)
-            for T in range(steps-1):
-                for Y in set(span[I,K]):
-                    left = (I,K,Y,T)
-                    # free unary rule Y->Y
-                    g.edge(semione, (I,K,Y,T+1), left)
-                    for r in grammar.r_y_x[Y]:
-                        X = r.parent
-                        g.edge(r.weight, (I,K,X,T+1), left)
-                        span[I,K].add(X)
+                        if Z not in span[J,K]: continue
+                        edge(br.weight, (I,K,X,0), (I,J,Y,steps-1), (J,K,Z,steps-1))
+            unary(I,K)
 
     return g
-
