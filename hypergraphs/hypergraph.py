@@ -12,7 +12,7 @@ class Hypergraph(object):
         self.root = None
 
     def __repr__(self):
-        return 'Hypergraph(nodes=%s, edges=%s)' % (len(self.incoming),
+        return 'Hypergraph(nodes=%s, edges=%s)' % (len(self.nodes),
                                                    len(self.edges))
 
     def edge(self, weight, head, *body):
@@ -20,6 +20,10 @@ class Hypergraph(object):
         self.incoming[e.head].append(e)
         self.edges.append(e)
         return e
+
+    @property
+    def nodes(self):
+        return self.incoming.keys()
 
     def terminals(self):
         terminals = set()
@@ -149,7 +153,7 @@ class Hypergraph(object):
 
     def apply(self, f):
         "Transform this hypergraphs's edge weights via `f(edge) -> weight`."
-        H = Hypergraph()
+        H = self.__class__()
         H.root = self.root
         for e in self.edges:
             w = f(e)

@@ -1,6 +1,6 @@
 import re
 import numpy as np
-from hypergraphs.hypergraph import Hypergraph
+from hypergraphs.pcfg import WCFG
 from collections import defaultdict, namedtuple
 
 # XXX: this grammar class is probably overkill - we can just use an RHS dictionary.
@@ -99,7 +99,7 @@ def parse_forest(sentence, grammar, steps=2):
 
     assert isinstance(sentence, list)
     N = len(sentence)
-    g = Hypergraph()
+    g = WCFG()
     g.root = (0, N, grammar.root, steps-1)
 
     semione = 0.0
