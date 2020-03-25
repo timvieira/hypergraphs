@@ -1,22 +1,29 @@
+"""MERT semiring tests
+===================
+
+- This module uses an imperative hypergraph traversal strategy (parser2) rather
+  than creating a hypergraph data structure (parser).
+
+TODO: Used an edge with features class.
+
+"""
 import numpy as np
 import pylab as pl
-from hypergraphs.mert import Enumeration, Elem, Point, Viterbi, post_process
+from hypergraphs.semirings.enumeration import Enumeration
+from hypergraphs.semirings.mert import Elem, Point, post_process
 from hypergraphs.apps.parser2 import parse, load_grammar
 
 
 def semiring_enumeration(sentence, rhs):
-    def binary(sentence,X,Y,Z,i,j,k):
-        return Enumeration([X])
-    def unary(sentence,X,Y,i,k):
-        return Enumeration([X])
-    def terminal(sentence,W,i):
-        return Enumeration([W])     # semiring one
-    zero = Enumeration([])
-    c = parse(sentence, rhs, binary, unary, terminal, zero)
+    def binary(_,X,Y,Z,i,j,k): return Enumeration([X])
+    def unary(_,X,Y,i,k):      return Enumeration([X])
+    def terminal(_,W,i):       return Enumeration([W])
+    c = parse(sentence, rhs, binary, unary, terminal, Enumeration.zero())
     return c[0,len(sentence),'S']
 
 
 def semiring_linesearch(sentence, rhs, weights, step, direction, binary_features, unary_features):
+    from hypergraphs.semirings.viterbi import Viterbi
 
     def binary(sentence,X,Y,Z,i,j,k):
         fs = binary_features(sentence,X,Y,Z,i,j,k)

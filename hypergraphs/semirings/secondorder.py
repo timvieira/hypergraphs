@@ -4,7 +4,7 @@ Second-order expectation semiring (Li & Eisner, 2009).
 
 import numpy as np
 from hypergraphs.hypergraph import Hypergraph
-from hypergraphs.logval import LogVal, LogValVector
+from hypergraphs.semirings.logval import LogVal, LogValVector
 from ldp.parsing.util import tree_edges
 from nltk import ImmutableTree as Tree
 
@@ -227,7 +227,7 @@ def fdcheck(E, root, eps=1e-4):
             E1[e] = (p,r,f*p)
 
         #S = secondorder_expectation_semiring(E, root)
-        from hypergraphs.insideout3 import inside_outside_speedup
+        from hypergraphs.alg.insideout3 import inside_outside_speedup
         khat, xhat = inside_outside_speedup(E1, root)
 
     else:
@@ -237,7 +237,7 @@ def fdcheck(E, root, eps=1e-4):
             E1[e] = (p,r,f)
 
         #S = secondorder_expectation_semiring(E, root)
-        from hypergraphs.insideout import inside_outside_speedup
+        from hypergraphs.alg.insideout import inside_outside_speedup
         khat, xhat = inside_outside_speedup(E1, root)
 
     ad_Z = xhat.s
@@ -278,17 +278,10 @@ def fdcheck(E, root, eps=1e-4):
 
 
 def test():
-    from hypergraphs import insideout, insideout2, enumeration
+    from hypergraphs.alg import insideout, insideout2
 
     root, D, E = small()
-
     fdcheck(E, root)
-
-    derivations = set()
-    for d in enumeration.enumerate_derivations(E, root).x:
-        print(d)
-        derivations.add(d)
-    assert derivations == set(D), (derivations, set(D))
 
     b = brute_force(D, E)
     dump(b)

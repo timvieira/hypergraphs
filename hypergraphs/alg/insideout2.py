@@ -3,8 +3,8 @@ Unfolding the hidden computations of the second order expectation semiring
 with this inside-outside trick.
 """
 
-from hypergraphs.secondorder import Hypergraph
-from hypergraphs.logval import LogVal, LogValVector
+from hypergraphs.hypergraph import Hypergraph
+from hypergraphs.semirings.logval import LogVal, LogValVector
 from collections import defaultdict
 
 

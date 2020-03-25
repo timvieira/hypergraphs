@@ -1,7 +1,6 @@
 from nltk import ImmutableTree
 
 
-# TODO: Viterbi is max/+ semiring crossed with a Free semiring for backpointers.
 class Viterbi(object):
 
     def __init__(self, score, d):
@@ -22,38 +21,6 @@ class Viterbi(object):
 
     def __repr__(self):
         return f'{self.derivation()}'
-
-
-# XXX: possible duplicate with hypergraph project.
-#class Enumeration(object):
-#    """Element of Enumeration semiring.
-#
-#    Each element is a set of derivations.
-#
-#    +: union
-#    x: join/cross product
-#
-#    See also:
-#
-#    - `post_process`:
-#
-#    """
-#
-#    def __init__(self, x):
-#        self.x = x
-#
-#    def __add__(self, other):
-#        if not other.x:
-#            return self
-#        if not self.x:
-#            return other
-#        return Enumeration(other.x + self.x)
-#
-#    def __mul__(self, other):
-#        return Enumeration([(x, y) for x in self.x for y in other.x])
-#
-#    def __repr__(self):
-#        return 'Enumeration(%s)' % self.x
 
 
 def _derivation(x):
