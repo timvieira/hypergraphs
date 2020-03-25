@@ -40,7 +40,7 @@ def _derivation(x):
 
 
 def post_process(x):
-    "Converts elements of `Enumeration` set into nicely formatted `Tree` objects."
+    "Converts list of lists set into nicely formatted `Tree` objects."
     if not isinstance(x, tuple):
         return x
     [body, label] = x

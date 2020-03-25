@@ -13,8 +13,7 @@ class Hypergraph(object):
         self.kind = None
 
     def __repr__(self):
-        return 'Hypergraph(nodes=%s, edges=%s)' % (len(self.nodes),
-                                                   len(self.edges))
+        return f'{self.__class__.__name__}({self.kind.__name__}, nodes={len(self.nodes)}, edges={len(self.edges)})'
 
     def edge(self, weight, head, *body):
         self.kind = type(weight)
@@ -78,8 +77,12 @@ class Hypergraph(object):
         if gopen:
             system('google-chrome {prefix}.svg 2>/dev/null &'.format(prefix=prefix))
 
+    def Z(self):
+        "Evaluate the partition function (total score of root node)."
+        return self.inside()[self.root]
+
     def inside(self):
-        "Run inside algorithm on hypergraph `g` in a given semiring."
+        "Run inside algorithm on hypergraph."
         B = defaultdict(self.kind.zero)
         for x in self.toposort():
             for e in self.incoming[x]:
@@ -90,7 +93,7 @@ class Hypergraph(object):
         return B
 
     def outside(self, B):
-        "Run outside algorithm on hypergraph `g` in a given semiring."
+        "Run outside algorithm on hypergraph."
         A = defaultdict(self.kind.zero)
         A[self.root] = self.kind.one()
         for v in reversed(list(self.toposort())):
@@ -109,7 +112,7 @@ class Hypergraph(object):
         - `X`: Function of the `edge => X`.
 
           Elements of X must form a K-module (where K is the type of `A` and
-          `B`). Th key operation is left-multiplication by type `K` which
+          `B`).  The key operation is left-multiplication by type `K` which
           distributes over addition: (x_1 + x_2) k_1 = x_1 k_1 + x_2 k_1.
 
         - `zero`: Allocate a zero of type `X`.
@@ -162,3 +165,7 @@ class Hypergraph(object):
             if w is not None:
                 H.edge(w, e.head, *e.body)
         return H
+
+    def sorted(self):
+        from hypergraphs.semirings.lazysort import BaseCase
+        return self.apply(lambda e: BaseCase(e.weight, e)).Z()

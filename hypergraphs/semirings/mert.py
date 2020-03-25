@@ -7,7 +7,6 @@ from scipy.spatial.qhull import Delaunay
 
 from pandas import DataFrame
 from hypergraphs.semirings.viterbi import _derivation, post_process
-#from hypergraphs.enumeration import Enumeration, Fn
 
 
 def conv(points):

@@ -54,9 +54,7 @@ def _test_sample(sample, IO, N):
 
 def test_sample_tree():
     from hypergraphs.apps.parse import papa_grammar
-
     forest = parse_forest('Papa ate the caviar with the spoon .'.split(), papa_grammar)
-
     _test_pcfg(forest)
     _test_sample_tree(forest, 10000)
 

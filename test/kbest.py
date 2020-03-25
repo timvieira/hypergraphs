@@ -1,21 +1,13 @@
-import numpy as np
+from hypergraphs.hypergraph import Edge
 from hypergraphs.apps.parse import parse_forest
-from hypergraphs.semirings.lazysort import BaseCase
 from nltk.tree import ImmutableTree
 
 
-def kbest_parses(_forest):
-    forest = _forest.apply(lambda e: BaseCase(e.weight, e.head[2]))
-    # run inside-outside
-    B = forest.inside()
-    for x in B[forest.root]:
-        yield x.score, post_process(x.data)
-
-
 def post_process(x):
-    "Converts elements of `Enumeration` set into nicely formatted `Tree` objects."
-    if isinstance(x, str): return x
+    "Converts nested lits into nicely formatted `nltk.Tree`s."
+    if isinstance(x, Edge): return x.head[2]
     [a, b] = x
+    if isinstance(a, Edge): a = a.head[2]
     if isinstance(a, str):
         r = post_process(b)
         if isinstance(r, str): r = [r]
@@ -29,10 +21,9 @@ def test_kbest():
     from hypergraphs.apps.parse import papa_grammar
 
     H = parse_forest('Papa ate the caviar with the spoon .'.split(), papa_grammar)
-
-    Z = H.inside()[H.root]
-    for score, d in kbest_parses(H):
-        print(float(score/Z), d)
+    Z = H.Z()
+    for x in H.sorted():
+        print(float(x.score/Z), post_process(x.data))
 
 
 if __name__ == '__main__':

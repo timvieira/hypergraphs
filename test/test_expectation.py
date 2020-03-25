@@ -186,13 +186,17 @@ def fdcheck(E, root, eps=1e-4):
                    'ad_rbar': ad_rbar[k].to_real(),
                    'fd_rbar': fd_rbar})
 
-    from arsenal.maths import compare
     from pandas import DataFrame
     df = DataFrame(dd)
-    compare(df.fd_Z, df.ad_Z, alphabet=df.key).show()
-    compare(df.fd_rbar, df.ad_rbar, alphabet=df.key).show()
-    compare(df.fd_risk, df.ad_risk, alphabet=df.key).show()
+    #from arsenal.maths import compare
+    #compare(df.fd_Z, df.ad_Z, alphabet=df.key).show()
+    #compare(df.fd_rbar, df.ad_rbar, alphabet=df.key).show()
+    #compare(df.fd_risk, df.ad_risk, alphabet=df.key).show()
+    assert np.allclose(df.fd_Z, df.ad_Z)
+    assert np.allclose(df.fd_rbar, df.ad_rbar)
+    assert np.allclose(df.fd_risk, df.ad_risk)
     #import pylab as pl; pl.show()
+    print('[fdcheck] ok')
 
 
 def test():
