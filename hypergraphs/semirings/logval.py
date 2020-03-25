@@ -60,10 +60,8 @@ class LogVal:
     def lift(cls, x):
         return cls(x >= 0, log(abs(x)))
 
-    def logeq(self, x):
-        assert x <= 0, x
-        self.pos = 1
-        self.ell = x
+    def __lt__(self, other):
+        return float(self) < float(other)
 
     def is_zero(self):
         return self.ell <= float('-inf')
@@ -78,7 +76,7 @@ class LogVal:
 
     lower = to_real
     __float__ = to_real
-        
+
     def __mul__(self, b):
         if not isinstance(b, LogVal):
             return b * self

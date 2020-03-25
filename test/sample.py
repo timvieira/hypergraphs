@@ -1,7 +1,6 @@
 import numpy as np
 from collections import defaultdict
 from arsenal.iterview import iterview
-from hypergraphs.semirings.logval import LogVal
 from hypergraphs.apps.parse import parse_forest
 
 
@@ -57,7 +56,6 @@ def test_sample_tree():
     from hypergraphs.apps.parse import papa_grammar
 
     forest = parse_forest('Papa ate the caviar with the spoon .'.split(), papa_grammar)
-    forest = forest.apply(lambda e: LogVal(ell=e.weight, pos=True))
 
     _test_pcfg(forest)
     _test_sample_tree(forest, 10000)

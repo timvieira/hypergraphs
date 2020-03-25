@@ -10,12 +10,14 @@ class Hypergraph(object):
         self.incoming = defaultdict(list)
         self.edges = []
         self.root = None
+        self.kind = None
 
     def __repr__(self):
         return 'Hypergraph(nodes=%s, edges=%s)' % (len(self.nodes),
                                                    len(self.edges))
 
     def edge(self, weight, head, *body):
+        self.kind = type(weight)
         e = Edge(weight, head, body)
         self.incoming[e.head].append(e)
         self.edges.append(e)
@@ -76,9 +78,9 @@ class Hypergraph(object):
         if gopen:
             system('google-chrome {prefix}.svg 2>/dev/null &'.format(prefix=prefix))
 
-    def inside(self, zero):
+    def inside(self):
         "Run inside algorithm on hypergraph `g` in a given semiring."
-        B = defaultdict(zero)
+        B = defaultdict(self.kind.zero)
         for x in self.toposort():
             for e in self.incoming[x]:
                 v = e.weight
@@ -87,10 +89,10 @@ class Hypergraph(object):
                 B[x] += v
         return B
 
-    def outside(self, B, zero, one):
+    def outside(self, B):
         "Run outside algorithm on hypergraph `g` in a given semiring."
-        A = defaultdict(zero)
-        A[self.root] = one()
+        A = defaultdict(self.kind.zero)
+        A[self.root] = self.kind.one()
         for v in reversed(list(self.toposort())):
             for e in self.incoming[v]:
                 for u in e.body:

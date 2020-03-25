@@ -13,24 +13,23 @@ class LazySort:
         if other.is_zero(): return zero
         return Prod(self, other)
     def is_zero(self):
-        return self is zero
+        return self == zero
     @classmethod
     def zero(cls):
-        return BaseCase(np.inf, None)
+        return zero
 
 
-# Notice that in this semiring multiplication is neither associative, nor
-# commutative.  This is why we get out a derivation tree (with parentheses).
+# Notice that in this multiplication is neither associative, nor commutative.
+# This is why we get out a derivation tree (with parentheses).
 class BaseCase(LazySort):
     def __init__(self, score, data):
-        assert isinstance(score, float)
         self.score = score
         self.data = data
     def __mul__(self, other):
         if self.is_zero(): return zero
         if other.is_zero(): return zero
         if isinstance(other, BaseCase):
-            return BaseCase(self.score + other.score, [self.data, other.data])
+            return BaseCase(self.score * other.score, [self.data, other.data])
         else:
             return super().__mul__(other)
     def __lt__(self, other):
@@ -40,8 +39,6 @@ class BaseCase(LazySort):
     def __repr__(self):
         return repr((self.score, self.data))
 
-
-zero = LazySort.zero()
 
 class Sum(LazySort):
     def __init__(self, a, b):
@@ -57,3 +54,6 @@ class Prod(LazySort):
         self.b = b
     def __iter__(self):
         yield from sorted_product(np.product, self.a, self.b)
+
+
+zero = BaseCase(np.inf, None)

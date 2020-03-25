@@ -1,13 +1,13 @@
 import numpy as np
 from hypergraphs.apps.parse import parse_forest
-from hypergraphs.semirings.lazysort import BaseCase, zero
+from hypergraphs.semirings.lazysort import BaseCase
 from nltk.tree import ImmutableTree
 
 
 def kbest_parses(_forest):
     forest = _forest.apply(lambda e: BaseCase(e.weight, e.head[2]))
     # run inside-outside
-    B = forest.inside(zero=lambda:zero)
+    B = forest.inside()
     for x in B[forest.root]:
         yield x.score, post_process(x.data)
 
@@ -30,12 +30,9 @@ def test_kbest():
 
     H = parse_forest('Papa ate the caviar with the spoon .'.split(), papa_grammar)
 
-    from hypergraphs.semirings.logval import LogVal
-    H1 = H.apply(lambda e: LogVal(ell=e.weight, pos=True))
-    Z = float(H1.inside(zero=LogVal.zero)[H1.root])
-
+    Z = H.inside()[H.root]
     for score, d in kbest_parses(H):
-        print(np.exp(score)/Z, d)
+        print(float(score/Z), d)
 
 
 if __name__ == '__main__':

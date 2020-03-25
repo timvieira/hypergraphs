@@ -3,15 +3,14 @@ from nltk.tree import ImmutableTree as Tree
 from arsenal.maths import sample
 
 from hypergraphs.hypergraph import Hypergraph
-from hypergraphs.semirings.logval import LogVal
 
 
 class WCFG(Hypergraph):
 
     def sum_product(self):
         "Run inside-outside on forest (logprob)."
-        B = self.inside(zero=LogVal.zero)
-        A = self.outside(B, zero=LogVal.zero, one=LogVal.one)
+        B = self.inside()
+        A = self.outside(B)
         return B, A
 
     def node_marginals(self, B, A):
@@ -28,7 +27,7 @@ class WCFG(Hypergraph):
         return M
 
     def to_PCFG(self):
-        B = self.inside(zero=LogVal.zero)
+        B = self.inside()
         P = PCFG()
         P.root = self.root
         for _, es in self.incoming.items():   # edges grouped by head node.

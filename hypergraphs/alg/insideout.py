@@ -14,8 +14,8 @@ def inside_outside_speedup(E, root):
         ke = ExpectationSemiring(p, p*r)
         g.edge(ke, *e)
 
-    B = g.inside(zero=ExpectationSemiring.zero)
-    A = g.outside(B, zero=ExpectationSemiring.zero, one=ExpectationSemiring.one)
+    B = g.inside()
+    A = g.outside(B)
 
     # The (s,t) component is an efficient linear combination with coefficients
     # from the cheap semiring.

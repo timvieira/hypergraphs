@@ -2,8 +2,9 @@ import re
 import numpy as np
 from hypergraphs.pcfg import WCFG
 from collections import defaultdict, namedtuple
+from hypergraphs.semirings.logval import LogVal
 
-# XXX: this grammar class is probably overkill - we can just use an RHS dictionary.
+# XXX: this grammar class is overkill - we can just use an RHS dictionary.
 class Grammar(object):
 
     def __init__(self, rules, root):
@@ -40,7 +41,7 @@ class Grammar(object):
         for line in source.strip().split('\n'):
             x = re.findall('\S+', re.sub('#.*', '', line.strip()))
             if x:
-                rules.append(Rule(np.log(float(x[0])), x[1], tuple(x[2:])))
+                rules.append(Rule(LogVal.lift(float(x[0])), x[1], tuple(x[2:])))
         return cls(rules, root)
 
 
@@ -102,7 +103,7 @@ def parse_forest(sentence, grammar, steps=2):
     g = WCFG()
     g.root = (0, N, grammar.root, steps-1)
 
-    semione = 0.0
+    one = LogVal.one()
     span = np.empty((N,N+1), dtype=set)
     for I in range(N):
         for K in range(N+1):
@@ -113,7 +114,7 @@ def parse_forest(sentence, grammar, steps=2):
             # initialize time step with current value (might get overwritten)
             for Y in set(span[I,K]):
                 # free unary rule Y->Y
-                edge(semione, (I,K,Y,T+1), (I,K,Y,T))
+                edge(one, (I,K,Y,T+1), (I,K,Y,T))
                 for r in grammar.r_y_x[Y]:
                     X = r.parent
                     edge(r.weight, (I,K,X,T+1), (I,K,Y,T))
@@ -127,7 +128,7 @@ def parse_forest(sentence, grammar, steps=2):
         Y = sentence[I]
         K = I + 1
         # add terminals
-        g.edge(semione, (I,K,Y,0))
+        g.edge(one, (I,K,Y,0))
         # add preterminals
         for r in grammar.preterm[Y]:
             X = r.parent

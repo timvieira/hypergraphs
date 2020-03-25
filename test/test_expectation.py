@@ -20,7 +20,7 @@ def secondorder_expectation_semiring(E, root):
         g.edge(ke, *e)
 
     # Inside algorithm for computing the same stuff as above more efficiently.
-    B = g.inside(zero=Semiring2.zero)
+    B = g.inside()
     return B[g.root]
 
 
@@ -125,7 +125,7 @@ def fdcheck(E, root, eps=1e-4):
         for e,[_,r,f] in list(E.items()):
             p = LogVal.lift(np.exp(f.dot(W).to_real()))
             g.edge(Semiring1(p, p*r), *e)
-        B = g.inside(Semiring1.zero)
+        B = g.inside()
         Q = B[g.root]
         return Q.p.to_real(), Q.r.to_real(), (Q.r/Q.p).to_real()
 
