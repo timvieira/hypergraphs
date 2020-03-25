@@ -6,16 +6,10 @@ Edge = namedtuple('Edge', 'weight, head, body')
 
 class Hypergraph(object):
 
-    def __init__(self, debug=False):
+    def __init__(self):
         self.incoming = defaultdict(list)
-        self.outgoing = defaultdict(list)
         self.edges = []
         self.root = None
-
-        # DEBUGGING
-        self.debug = debug
-        if self.debug:
-            self.USED = defaultdict(lambda: False)
 
     def __repr__(self):
         return 'Hypergraph(nodes=%s, edges=%s)' % (len(self.incoming),
@@ -23,26 +17,8 @@ class Hypergraph(object):
 
     def edge(self, weight, head, *body):
         e = Edge(weight, head, body)
-
-        if self.debug:
-            # check that we add edges in a valid topological ordering by
-            # ensuring that when we don't added an incoming edge to a node that
-            # we've already used. (Here "used" means that a node appears in the
-            # body of another edge).
-            for b in body:
-                self.USED[b] = True
-            if self.USED[head]:
-                print()
-                print('violates topo:', e)
-                print('  edges using %s:' % (head,))
-                for ee in self.outgoing[head]:
-                    print('   ', ee)
-            assert not self.USED[head]
-
         self.incoming[e.head].append(e)
         self.edges.append(e)
-        for b in e.body:
-            self.outgoing[b].append(e)
         return e
 
     def terminals(self):

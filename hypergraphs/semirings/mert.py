@@ -6,7 +6,7 @@ import pylab as pl
 from scipy.spatial.qhull import Delaunay
 
 from pandas import DataFrame
-from hypergraphs.viterbi import Viterbi, _derivation, post_process
+from hypergraphs.semirings.viterbi import Viterbi, _derivation, post_process
 #from hypergraphs.enumeration import Enumeration, Fn
 
 

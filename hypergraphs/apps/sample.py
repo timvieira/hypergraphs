@@ -3,8 +3,7 @@ from collections import defaultdict
 from arsenal.iterview import iterview
 from numpy.random import uniform
 from nltk.tree import ImmutableTree as Tree
-from hypergraphs.logval import LogVal
-from hypergraphs.hypergraph import Hypergraph
+from hypergraphs.semirings.logval import LogVal
 from hypergraphs.apps.parse import parse_forest
 
 
@@ -27,7 +26,7 @@ def sample(forest, B, v=None):
         Z += p
         cs.append(Z.to_real())
     # sample one of the incoming edges
-    i = np.array(cs).searchsorted(uniform(0, cs[-1]))
+    i = np.array(cs).searchsorted(uniform(0, float(Z)))
     e = edges[i]
     return Tree(v, [sample(forest, B, y) for y in e.body])
 
@@ -44,12 +43,7 @@ def _test_sample_tree(example, grammar, N):
     print()
     _forest = parse_forest(example, grammar)
     # apply temperature to grammar rules
-    forest = Hypergraph()
-    forest.root = _forest.root
-    for e in _forest.edges:
-        c = LogVal.zero()
-        c.logeq(e.weight)
-        forest.edge(c, e.head, *e.body)
+    forest = _forest.apply(lambda e: LogVal(ell=e.weight, pos=True))
     # run inside-outside
     B, A = sum_product(forest)
     Z = B[forest.root]
