@@ -14,7 +14,7 @@ class WCFG(Hypergraph):
         return B, A
 
     def node_marginals(self, B, A):
-        Z = B[self.root]
+        Z = self.Z()
         return {x: B[x] * A[x] / Z for x in A}
 
     def edge_marginals(self, B, A):
