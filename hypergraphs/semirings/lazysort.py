@@ -57,3 +57,23 @@ class Prod(LazySort):
 
 
 zero = BaseCase(np.inf, None)
+
+
+def post_process(f, derivation):
+    "f: Edge -> str; derivation: list of lists with edges at the leaves."
+    from nltk.tree import  ImmutableTree as Tree
+    from hypergraphs.hypergraph import Edge
+
+    def _post_process(x):
+        "Converts nested lits into nicely formatted `nltk.Tree`s."
+        if isinstance(x, Edge): return f(x)
+        [a, b] = x
+        a = _post_process(a)
+        b = _post_process(b)
+        if isinstance(b, str): b = (b,)
+        if isinstance(a, str):
+            return Tree(a, b)
+        else:
+            return (a, b)     # assume that the parent will label this pair of children
+
+    return _post_process(derivation)

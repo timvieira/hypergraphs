@@ -58,14 +58,15 @@ class Rule(namedtuple('Rule', 'weight, head, body')):
 
 
 papa_grammar = Grammar.load("""
-1       ROOT    S
-1       S       S <.>
-1       S       NP VP
+
+1       ROOT    S   <.>
+1       S       NP  VP
 1       NP      Det N
-1       NP      NP PP
-.25     VP      V NP
-.75     VP      VP PP
-1       PP      P NP
+1       NP      NP  PP
+.25     VP      V   NP
+.75     VP      VP  PP
+1       PP      P   NP
+
 1       NP      Papa
 1       NP      Sally
 1       N       caviar
@@ -85,6 +86,7 @@ papa_grammar = Grammar.load("""
 .85     Det     a
 .1      Det     his
 1       <.>     .
+
 """)
 
 
@@ -92,7 +94,7 @@ papa_grammar = Grammar.load("""
 # hypergraph object (maybe that could be done with a the "free" semring?).
 # XXX: One notable difference is that this implementation supports unrolling
 # unary chains for a finite number of steps.
-def parse_forest(sentence, grammar, steps=2):
+def parse_forest(sentence, grammar, steps=1):
     """Build parse forest for `sentence` under `grammar` using a few `steps` for
     time indexed unary steps (avoids cycles).
 
@@ -101,7 +103,7 @@ def parse_forest(sentence, grammar, steps=2):
     assert isinstance(sentence, list)
     N = len(sentence)
     g = WCFG()
-    g.root = (0, N, grammar.root, steps-1)
+    g.root = (0, N, grammar.root, steps)
 
     one = LogVal.one()
     span = np.empty((N,N+1), dtype=set)
@@ -110,14 +112,13 @@ def parse_forest(sentence, grammar, steps=2):
             span[I,K] = set()
 
     def unary(I,K):
-        for T in range(steps-1):
+        for T in range(steps):
             # initialize time step with current value (might get overwritten)
             for Y in set(span[I,K]):
                 # free unary rule Y->Y
                 edge(one, (I,K,Y,T+1), (I,K,Y,T))
-                for r in grammar.r_y_x[Y]:
-                    X = r.parent
-                    edge(r.weight, (I,K,X,T+1), (I,K,Y,T))
+                for [W, X, _] in grammar.r_y_x[Y]:
+                    edge(W, (I,K,X,T+1), (I,K,Y,T))
 
     def edge(w, x, *ys):
         (I,K,X,_) = x
@@ -130,9 +131,8 @@ def parse_forest(sentence, grammar, steps=2):
         # add terminals
         g.edge(one, (I,K,Y,0))
         # add preterminals
-        for r in grammar.preterm[Y]:
-            X = r.parent
-            edge(r.weight, (I,K,X,0), (I,K,Y,0))
+        for [W,X,_] in grammar.preterm[Y]:
+            edge(W, (I,K,X,0), (I,K,Y,0))
         unary(I,K)
 
     for w in range(2, N+1):
@@ -140,11 +140,9 @@ def parse_forest(sentence, grammar, steps=2):
             K = I + w
             for J in range(I+1, K):
                 for Y in span[I,J]:
-                    for br in grammar.r_y_xz[Y]:
-                        X = br.parent
-                        Z = br.right
+                    for [W, X, [_,Z]] in grammar.r_y_xz[Y]:
                         if Z not in span[J,K]: continue
-                        edge(br.weight, (I,K,X,0), (I,J,Y,steps-1), (J,K,Z,steps-1))
+                        edge(W, (I,K,X,0), (I,J,Y,steps), (J,K,Z,steps))
             unary(I,K)
 
     return g
