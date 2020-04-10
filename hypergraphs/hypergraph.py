@@ -6,10 +6,10 @@ Edge = namedtuple('Edge', 'weight, head, body')
 
 class Hypergraph(object):
 
-    def __init__(self):
+    def __init__(self, root=None):
         self.incoming = defaultdict(list)
         self.edges = []
-        self.root = None
+        self.root = root
         self.kind = None
 
     def __repr__(self):
@@ -86,24 +86,27 @@ class Hypergraph(object):
         B = defaultdict(self.kind.zero)
         for x in self.toposort():
             for e in self.incoming[x]:
-                v = e.weight
+                v = self.kind.one()
                 for b in e.body:
-                    v = v * B[b]
-                B[x] += v
+                    v *= B[b]
+                B[x] += e.weight * v
         return B
 
+    # TODO: modify the outside algorithm to support non-AC multiplication.
     def outside(self, B):
         "Run outside algorithm on hypergraph."
         A = defaultdict(self.kind.zero)
         A[self.root] = self.kind.one()
-        for v in reversed(list(self.toposort())):
-            for e in self.incoming[v]:
-                for u in e.body:
-                    z = A[v] * e.weight
-                    for w in e.body:
-                        if w != u:
-                            z = z * B[w]
-                    A[u] += z
+        for x in reversed(list(self.toposort())):
+            for e in self.incoming[x]:
+                for y in e.body:
+                    w = self.kind.one()
+                    for z in e.body:
+                        if y == z:
+                            w *= A[x]
+                        else:
+                            w *= B[z]
+                    A[y] += e.weight * w
         return A
 
     def insideout(self, A, B, X, zero):
@@ -149,17 +152,15 @@ class Hypergraph(object):
 
     def prune_nodes(self, nodes):
         "Prune graph down to a set of nodes."
-        g = Hypergraph()
+        g = Hypergraph(self.root)
         for e in self.edges:
             if e.head in nodes and all(b in nodes for b in e.body):
                 g.edge(e.weight, e.head, *e.body)
-        g.root = self.root
         return g
 
     def apply(self, f):
         "Transform this hypergraphs's edge weights via `f(edge) -> weight`."
-        H = self.__class__()
-        H.root = self.root
+        H = self.__class__(self.root)
         for e in self.edges:
             w = f(e)
             if w is not None:
@@ -167,5 +168,8 @@ class Hypergraph(object):
         return H
 
     def sorted(self):
-        from hypergraphs.semirings.lazysort import BaseCase
-        return self.apply(lambda e: BaseCase(e.weight, e)).Z()
+        return self._sorted().Z()
+
+    def _sorted(self):
+        from hypergraphs.semirings import LazySort
+        return self.apply(lambda e: LazySort(e.weight, e))

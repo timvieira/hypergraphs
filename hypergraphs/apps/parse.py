@@ -4,8 +4,10 @@ from hypergraphs.pcfg import WCFG
 from collections import defaultdict, namedtuple
 from hypergraphs.semirings.logval import LogVal
 
+Rule = namedtuple('Rule', 'weight, head, body')
+
 # XXX: this grammar class is overkill - we can just use an RHS dictionary.
-class Grammar(object):
+class Grammar:
 
     def __init__(self, rules, root):
         nonterminals = defaultdict(list)
@@ -40,64 +42,16 @@ class Grammar(object):
         rules = []
         for line in source.strip().split('\n'):
             x = re.findall('\S+', re.sub('#.*', '', line.strip()))
-            if x:
-                rules.append(Rule(LogVal.lift(float(x[0])), x[1], tuple(x[2:])))
+            if not x: continue
+            W, X, *Ys = x
+            rules.append(Rule(LogVal.lift(float(W)), X, tuple(Ys)))
         return cls(rules, root)
 
 
-class Rule(namedtuple('Rule', 'weight, head, body')):
-    @property
-    def parent(self):
-        return self.head
-    @property
-    def left(self):
-        return self.body[0]
-    @property
-    def right(self):
-        return self.body[1]
-
-
-papa_grammar = Grammar.load("""
-
-1       ROOT    S   <.>
-1       S       NP  VP
-1       NP      Det N
-1       NP      NP  PP
-.25     VP      V   NP
-.75     VP      VP  PP
-1       PP      P   NP
-
-1       NP      Papa
-1       NP      Sally
-1       N       caviar
-1       N       president
-1       NP      president
-1       N       spoon
-1       N       sandwich
-1       N       pickles
-1       N       nose
-1       V       spoon
-1       V       ate
-1       V       smelled
-1       V       perplexed
-1       P       with
-1       P       under
-.85     Det     the
-.85     Det     a
-.1      Det     his
-1       <.>     .
-
-""")
-
-
-# XXX: Related to implementation in notes.parse module, but this one creates a
-# hypergraph object (maybe that could be done with a the "free" semring?).
-# XXX: One notable difference is that this implementation supports unrolling
-# unary chains for a finite number of steps.
 def parse_forest(sentence, grammar, steps=1):
-    """Build parse forest for `sentence` under `grammar` using a few `steps` for
+    """
+    Build parse forest for `sentence` under `grammar` using a few `steps` for
     time indexed unary steps (avoids cycles).
-
     """
 
     assert isinstance(sentence, list)
@@ -146,3 +100,61 @@ def parse_forest(sentence, grammar, steps=1):
             unary(I,K)
 
     return g
+
+
+class papa:
+    grammar = Grammar.load("""
+    # rules ------------------
+    1       ROOT    S   <.>
+    1       S       NP  VP
+    1       NP      Det N
+    1       NP      NP  PP
+    .25     VP      V   NP
+    .75     VP      VP  PP
+    1       PP      P   NP
+    # vocabulary --------------
+    1       NP      Papa
+    1       NP      Sally
+    1       N       caviar
+    1       N       president
+    1       NP      president
+    1       N       spoon
+    1       N       sandwich
+    1       N       pickles
+    1       N       nose
+    1       V       spoon
+    1       V       ate
+    1       V       smelled
+    1       V       perplexed
+    1       P       with
+    1       P       under
+    .85     Det     the
+    .85     Det     a
+    .1      Det     his
+    1       <.>     .
+    """)
+    sentence = 'Papa ate the caviar with the spoon .'.split()
+    hypergraph = parse_forest(sentence, grammar, steps=1)
+
+
+class abc:
+    grammar = Grammar.load("""
+    1       AB      A   B
+    1       BC      B   C
+    1       ABC     AB  C
+    1       ABC     A   BC
+    1       CD      C   D
+    1       BCD     BC  D
+    1       BCD     B   CD
+
+    1       ABCD    ABC D
+    1       ABCD    A   BCD
+    1       ABCD    AB  CD
+
+    1       A       a
+    1       B       b
+    1       C       c
+    1       D       d
+    """, root = 'ABCD')
+    sentence = 'a b c d'.split()
+    hypergraph = parse_forest(sentence, grammar, steps=0)

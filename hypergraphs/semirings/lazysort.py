@@ -2,7 +2,7 @@ import numpy as np
 from arsenal.iterextras import sorted_union, sorted_product
 
 
-class LazySort:
+class _LazySort:
     def __add__(self, other):
         if self.is_zero(): return other
         if other.is_zero(): return self
@@ -17,19 +17,24 @@ class LazySort:
     @classmethod
     def zero(cls):
         return zero
+    @classmethod
+    def one(cls):
+        return one
 
 
 # Notice that in this multiplication is neither associative, nor commutative.
 # This is why we get out a derivation tree (with parentheses).
-class BaseCase(LazySort):
+class LazySort(_LazySort):
     def __init__(self, score, data):
         self.score = score
         self.data = data
     def __mul__(self, other):
+        if self is one: return other
+        if other is one: return self
         if self.is_zero(): return zero
         if other.is_zero(): return zero
-        if isinstance(other, BaseCase):
-            return BaseCase(self.score * other.score, [self.data, other.data])
+        if isinstance(other, LazySort):
+            return LazySort(self.score * other.score, [self.data, other.data])
         else:
             return super().__mul__(other)
     def __lt__(self, other):
@@ -40,7 +45,7 @@ class BaseCase(LazySort):
         return repr((self.score, self.data))
 
 
-class Sum(LazySort):
+class Sum(_LazySort):
     def __init__(self, a, b):
         self.a = a
         self.b = b
@@ -48,7 +53,7 @@ class Sum(LazySort):
         yield from sorted_union(self.a, self.b)
 
 
-class Prod(LazySort):
+class Prod(_LazySort):
     def __init__(self, a, b):
         self.a = a
         self.b = b
@@ -56,7 +61,8 @@ class Prod(LazySort):
         yield from sorted_product(np.product, self.a, self.b)
 
 
-zero = BaseCase(np.inf, None)
+zero = LazySort(np.inf, None)
+one = LazySort(None, ())
 
 
 def post_process(f, derivation):
@@ -75,5 +81,22 @@ def post_process(f, derivation):
             return Tree(a, b)
         else:
             return (a, b)     # assume that the parent will label this pair of children
+
+    return _post_process(derivation)
+
+
+
+def post_process2(f, derivation):
+    "f: Edge -> str; derivation: list of lists with edges at the leaves."
+    from hypergraphs.hypergraph import Edge
+
+    def _post_process(x):
+        "Converts nested lits into nicely formatted `nltk.Tree`s."
+        if isinstance(x, Edge): return f(x)
+        z = tuple(_post_process(y) for y in x)
+        if z and isinstance(z[0], str) and isinstance(z[1], tuple):
+            assert len(z) == 2
+            return (z[0], *z[1])
+        return z
 
     return _post_process(derivation)

@@ -9,9 +9,9 @@ class Viterbi(object):
 
     def __add__(self, other):
         if self.score >= other.score:
-            return Viterbi(self.score, self.d)
+            return self
         else:
-            return Viterbi(other.score, other.d)
+            return other
 
     def __mul__(self, other):
         return Viterbi(self.score + other.score, (self, other))

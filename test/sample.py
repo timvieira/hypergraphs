@@ -1,7 +1,7 @@
 import numpy as np
 from collections import defaultdict
 from arsenal.iterview import iterview
-from hypergraphs.apps.parse import parse_forest
+from hypergraphs import Hypergraph
 
 
 def _test_sample_tree(forest, N):
@@ -11,18 +11,13 @@ def _test_sample_tree(forest, N):
 
 
 def _test_pcfg(forest):
-
-    # run inside-outside
     IO = forest.node_marginals(*forest.sum_product())
-
     pcfg = forest.to_PCFG()
-
     B, A = pcfg.sum_product()
     for x in B:
         assert np.allclose(float(B[x]), 1), [x, float(B[x])]
     for x in A:
         assert np.allclose(float(IO[x]), float(A[x])), [x, float(IO[x]), float(A[x])]
-
     print('[test pcfg] ok')
 
 
@@ -33,9 +28,13 @@ def _test_sample(sample, IO, N):
     m = defaultdict(float)
     for _ in iterview(range(N)):
         t = sample()
-        for s in t.subtrees():
-            x = s.label()
-            m[x] += 1.0 / N
+        if isinstance(t, Hypergraph):
+            for x in t.nodes:
+                m[x] += 1.0 / N
+        else:
+            for s in t.subtrees():
+                x = s.label()
+                m[x] += 1.0 / N
 
     # check marginals
     threshold = 1e-4
@@ -53,10 +52,9 @@ def _test_sample(sample, IO, N):
 
 
 def test_sample_tree():
-    from hypergraphs.apps.parse import papa_grammar
-    forest = parse_forest('Papa ate the caviar with the spoon .'.split(), papa_grammar)
-    _test_pcfg(forest)
-    _test_sample_tree(forest, 10000)
+    from hypergraphs.apps.parse import papa
+    _test_pcfg(papa.hypergraph)
+    _test_sample_tree(papa.hypergraph, 10000)
 
 
 if __name__ == '__main__':

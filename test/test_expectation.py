@@ -1,7 +1,7 @@
 import numpy as np
 from hypergraphs.semirings.logval import LogVal, LogValVector
 from hypergraphs.hypergraph import Hypergraph
-from hypergraphs.semirings.secondorder import Semiring1, Semiring2
+from hypergraphs.semirings import Expectation, SecondOrderExpectation
 from nltk import ImmutableTree as Tree
 
 from ldp.parsing.util import tree_edges
@@ -16,7 +16,7 @@ def secondorder_expectation_semiring(E, root):
     # edge weights as follows: k_e = (p, p*r, p*s p*r*s). Note: the equivalent
     # computation in the brute-force setting does not do this transformation.
     for e, (p,r,s) in E.items():
-        ke = Semiring2(p, p*r, p*s, p*r*s)
+        ke = SecondOrderExpectation(p, p*r, p*s, p*r*s)
         g.edge(ke, *e)
 
     # Inside algorithm for computing the same stuff as above more efficiently.
@@ -47,7 +47,7 @@ def brute_force(derivations, E):
         rbar += pd*rd
         sbar += pd*sd
         tbar += pd*rd*sd
-    return Semiring2(Z, rbar, sbar, tbar)
+    return SecondOrderExpectation(Z, rbar, sbar, tbar)
 
 
 def small():
@@ -124,7 +124,7 @@ def fdcheck(E, root, eps=1e-4):
         g.root = root
         for e,[_,r,f] in list(E.items()):
             p = LogVal.lift(np.exp(f.dot(W).to_real()))
-            g.edge(Semiring1(p, p*r), *e)
+            g.edge(Expectation(p, p*r), *e)
         B = g.inside()
         Q = B[g.root]
         return Q.p.to_real(), Q.r.to_real(), (Q.r/Q.p).to_real()
@@ -214,13 +214,13 @@ def test():
     check_equal(Q, b)
 
     khat, xhat = insideout.inside_outside_speedup(E, root)
-    v = Semiring2(khat.p, khat.r, xhat.s, xhat.t)
+    v = SecondOrderExpectation(khat.p, khat.r, xhat.s, xhat.t)
 
     dump(v)
     check_equal(Q, v)
 
     x = insideout2.inside_outside_speedup(E, root)
-    v = Semiring2(*x)
+    v = SecondOrderExpectation(*x)
 
     dump(v)
     check_equal(Q, v)

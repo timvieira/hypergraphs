@@ -9,16 +9,16 @@ TODO: Used an edge with features class.
 """
 import numpy as np
 import pylab as pl
-from hypergraphs.semirings.enumeration import Enumeration
-from hypergraphs.semirings.mert import Elem, Point, post_process
+from hypergraphs import Edge
+from hypergraphs.semirings import LazySort, ConvexHull, Point, post_process
 from hypergraphs.apps.parser2 import parse, load_grammar
 
 
 def semiring_enumeration(sentence, rhs):
-    def binary(_,X,Y,Z,i,j,k): return Enumeration([X])
-    def unary(_,X,Y,i,k):      return Enumeration([X])
-    def terminal(_,W,i):       return Enumeration([W])
-    c = parse(sentence, rhs, binary, unary, terminal, Enumeration.zero())
+    def binary(_,X,Y,Z,I,J,K): return LazySort(1, X) #Edge(1, (X,I,K), [(Y,I,J), (Z,J,K)]))
+    def unary(_,X,Y,I,K):      return LazySort(1, X) #Edge(1, (X,I,K), [(Y,I,K)]))
+    def terminal(_,W,I):       return LazySort(1, W) #Edge(1, (W,I,I+1), []))
+    c = parse(sentence, rhs, binary, unary, terminal, LazySort.zero())
     return c[0,len(sentence),'S']
 
 
@@ -46,16 +46,17 @@ def semiring_mert(sentence, rhs, w, d, binary_features, unary_features):
 
     def binary(sentence,X,Y,Z,i,j,k):
         fs = binary_features(sentence,X,Y,Z,i,j,k)
-        return Elem([Point(w[fs].sum(), -d[fs].sum(), X)])
+        return ConvexHull([Point(w[fs].sum(), -d[fs].sum(), X)])
 
     def unary(sentence,X,Y,i,k):
         fs = unary_features(sentence,X,Y,i,k)
-        return Elem([Point(w[fs].sum(), -d[fs].sum(), X)])
+        return ConvexHull([Point(w[fs].sum(), -d[fs].sum(), X)])
 
     def terminal(sentence,W,i):
-        return Elem([Point(0, 0, W)])     # semiring one
+        # semiring one with terminal symbol annotation
+        return ConvexHull([Point(0, 0, W)])
 
-    zero = Elem([])
+    zero = ConvexHull([])
 
     c = parse(sentence, rhs, binary, unary, terminal, zero)
     return c[0,len(sentence),'S']
@@ -114,20 +115,21 @@ def main():
         # This code branch enumerates all (exponentially many) valid
         # derivations.
         root = semiring_enumeration(sentence, rhs)
-        for d in root.x:
-            print(post_process(d))
-        assert len(root.x) == len(set(root.x))
+        for d in root:
+            print(d)
+#            print(post_process(lambda e: e, d))
+        assert len(list(root)) == len(set(root))
 
-    def binary_features(sentence,X,Y,Z,i,j,k):
+    def binary_features(_,X,Y,Z,i,j,k):
         return alphabet(['%s -> %s %s [%s,%s,%s]' % (X,Y,Z,i,j,k)])
 
-    def unary_features(sentence,X,Y,i,k):
+    def unary_features(_,X,Y,i,k):
         return alphabet(['%s -> %s [%s,%s]' % (X,Y,i,k)])
 
     root = semiring_mert(sentence, rhs, weights, direction, binary_features, unary_features)
 
     mert_derivations = [] #set()
-    for x in root.points:
+    for x in root:
         print(x)
         d = x.derivation()
         mert_derivations.append(d)
