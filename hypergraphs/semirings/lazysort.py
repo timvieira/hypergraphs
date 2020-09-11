@@ -62,7 +62,7 @@ class Prod(_LazySort):
 
 
 zero = LazySort(np.inf, None)
-one = LazySort(None, ())
+one = LazySort(1.0, ())
 
 
 def post_process(f, derivation):
