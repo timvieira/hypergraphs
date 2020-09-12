@@ -26,11 +26,7 @@ def parse(sentence, rhs, binary, unary, terminal, zero):
         # Terminal
         span[i,k].add(w)
         c[i,k,w] = terminal(sentence,w,i)
-        # Preterminal rules
-#        for x in rhs[w,]:
-#            span[i,k].add(x)
-#            c[i,k,x] += c[i,k,w] * unary(sentence,x,w,i,k)
-        # one-step of unary rules above preterminal
+        # one-step of unary rules
         for y in set(span[i,k]):
             for x in rhs[y,]:
                 span[i,k].add(x)

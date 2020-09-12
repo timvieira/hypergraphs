@@ -135,7 +135,7 @@ def main():
         mert_derivations.append(d)
 
     assert len(mert_derivations) == len(set(mert_derivations))
-    #root.draw()
+    root.draw()
 
     # Compare the set of derivations found by the MERT semiring to 'brute force'
     # linesearch. Note: Linesearch might only find a subset of derivations found
