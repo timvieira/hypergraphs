@@ -61,7 +61,7 @@ class Prod(_LazySort):
         yield from sorted_product(np.product, self.a, self.b)
 
 
-zero = LazySort(np.inf, None)
+zero = LazySort(0.0, None)
 one = LazySort(1.0, ())
 
 
@@ -71,7 +71,7 @@ def post_process(f, derivation):
     from hypergraphs.hypergraph import Edge
 
     def _post_process(x):
-        "Converts nested lits into nicely formatted `nltk.Tree`s."
+        "Converts nested lists into nicely formatted `nltk.Tree`s."
         if isinstance(x, Edge): return f(x)
         [a, b] = x
         a = _post_process(a)
