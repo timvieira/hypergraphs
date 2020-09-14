@@ -51,6 +51,8 @@ class Sum(_LazySort):
         self.b = b
     def __iter__(self):
         yield from sorted_union(self.a, self.b)
+    def __repr__(self):
+        return f'({self.a} + {self.b})'
 
 
 class Prod(_LazySort):
@@ -59,6 +61,8 @@ class Prod(_LazySort):
         self.b = b
     def __iter__(self):
         yield from sorted_product(np.product, self.a, self.b)
+    def __repr__(self):
+        return f'({self.a} * {self.b})'
 
 
 zero = LazySort(0.0, None)
