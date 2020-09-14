@@ -70,13 +70,19 @@ class Hypergraph(object):
                     f.write('{ rank = same; "%s"; "%s"; }\n' % (a,b))
             print('}', file=f)
 
-    # TODO: figure out how to draw the hypergraph in a jupyter notebook.
     def show(self, prefix='/tmp/hypergraph', gopen=True):
         from os import system
-        self.graphviz(prefix + '.dot')
-        system('(dot -Tsvg {prefix}.dot > {prefix}.svg) 2>/dev/null'.format(prefix=prefix))
-        if gopen:
-            system('google-chrome {prefix}.svg 2>/dev/null &'.format(prefix=prefix))
+        dot = f'{prefix}.dot'; svg = f'{prefix}.svg'
+        self.graphviz(dot)
+        system(f'(dot -Tsvg {dot} > {svg}) 2>/dev/null')
+        if gopen: system(f'google-chrome {svg} 2>/dev/null &')
+        return svg
+
+    def display(self):
+        "Visualize graphviz rendering in a Jupyter notebook."
+        from IPython.core.display import display, HTML
+        svg = open(self.show(gopen=False)).read()
+        display(HTML(svg))
 
     def Z(self):
         "Evaluate the partition function (total score of root node)."
