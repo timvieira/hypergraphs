@@ -100,3 +100,13 @@ def post_process2(f, derivation):
         return z
 
     return _post_process(derivation)
+
+
+def flatten(S):
+    if not isinstance(S, list):
+        return [S]
+    else:
+        tmp = []
+        for x in S:
+            tmp.extend(flatten(x))
+        return tmp

@@ -70,6 +70,7 @@ class Hypergraph(object):
                     f.write('{ rank = same; "%s"; "%s"; }\n' % (a,b))
             print('}', file=f)
 
+    # TODO: figure out how to draw the hypergraph in a jupyter notebook.
     def show(self, prefix='/tmp/hypergraph', gopen=True):
         from os import system
         self.graphviz(prefix + '.dot')
