@@ -8,19 +8,36 @@ class Viterbi(object):
         self.d = d
 
     def __add__(self, other):
+        if other is zero: return self
+        if self is zero: return other
         if self.score >= other.score:
             return self
         else:
             return other
 
     def __mul__(self, other):
+        if other is one: return self
+        if self is one: return other
         return Viterbi(self.score + other.score, (self, other))
 
     def derivation(self):
         return _derivation(self)
 
     def __repr__(self):
-        return f'{self.derivation()}'
+        return f'Viterbi({self.score}, {self.d})'
+
+    @classmethod
+    def zero(cls):
+        return zero
+
+    @classmethod
+    def one(cls):
+        return one
+
+
+ninf = float('-inf')
+zero = Viterbi(ninf, None)
+one = Viterbi(0.0, ())
 
 
 def _derivation(x):
