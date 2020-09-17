@@ -3,7 +3,10 @@ import pylab as pl
 from arsenal import iterview
 from arsenal.maths import random_dist, compare
 
-EAGER = True
+from hypergraphs.apps.subsets import subsets
+
+
+EAGER = False #True
 
 if EAGER:
     from hypergraphs.semirings.sampling.eager import Expon as Sample
@@ -46,7 +49,7 @@ def test_flat():
     reps = 10_000
 
     def run():
-        Z = Sample.zero()
+        Z = Sample.zero
         for k in range(n):
             Z += Sample(w[k], k)
         return Z
@@ -79,18 +82,6 @@ def test_flat():
     #pl.show()
 
 
-def subsets(w, K, Weights):
-    "Subsets of size K"
-    N = len(w)
-    E = np.full((K+1,N+1), Weights.zero())
-    E[0,:] = Weights.one()                     # initialization
-    for k in range(1, K+1):
-        for n in range(N):
-            E[k,n+1] += E[k,n]
-            E[k,n+1] += E[k-1,n] * Weights(w[n], n)
-    return E[K,N]
-
-
 from hypergraphs.apps.parser2 import parse, load_grammar
 def parser(sentence, grammar, w, Weights):
     def binary(sentence,X,Y,Z,i,j,k):
@@ -99,7 +90,7 @@ def parser(sentence, grammar, w, Weights):
         return Weights(w(X,Y,i,k), X)
     def terminal(sentence,W,i):
         return Weights(1.0, W)
-    return parse(sentence, grammar, binary, unary, terminal, zero = Weights.zero())[0,len(sentence),'S']
+    return parse(sentence, grammar, binary, unary, terminal, zero = Weights.zero)[0,len(sentence),'S']
 
 
 def test_subsets():
@@ -170,7 +161,6 @@ def test_parse():
         Z = 0.0
         p = {}
         for x in root:
-            #print(extract2(x.data))
             p[str(extract2(x.data))] = x.score
             Z += x.score
         return normalize(p)

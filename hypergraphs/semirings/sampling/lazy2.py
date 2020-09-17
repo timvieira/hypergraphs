@@ -1,7 +1,8 @@
 import numpy as np
+from hypergraphs.semirings import base
 
 
-class Sample:
+class Sample(base.Semiring):
 
     def __init__(self, w, d):
         self.w = w
@@ -29,14 +30,6 @@ class Sample:
     def __repr__(self):
         return f'{self.__class__.__name__}({self.w}, {self.d})'
 
-    @classmethod
-    def zero(cls):
-        return zero
-
-    @classmethod
-    def one(cls):
-        return one
-
 
 class Sum(Sample):
     def __init__(self, x, y):
@@ -61,3 +54,7 @@ class Prod(Sample):
 
 zero = Sample(0.0, None)
 one = Sample(1.0, ())
+
+
+Sample.one = one
+Sample.zero = zero

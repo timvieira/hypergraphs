@@ -1,7 +1,8 @@
 import numpy as np
+from hypergraphs.semirings import base
 
 
-class Expon:
+class Expon(base.Semiring):
 
     def __init__(self, w, d):
         self.w = w
@@ -23,13 +24,6 @@ class Expon:
     def __repr__(self):
         return f'{self.__class__.__name__}({self.w}, {self.d})'
 
-    @classmethod
-    def zero(cls):
-        return zero
-
-    @classmethod
-    def one(cls):
-        return one
 
 
 class Sum(Expon):
@@ -47,11 +41,19 @@ class Prod(Expon):
         super().__init__(x.w * y.w, d=[x,y])
 
         # XXX: steal the backpointers, but take a fresh sample?
-        _,xd = x.value
-        _,yd = y.value
+        xs,xd = x.value
+        ys,yd = y.value
 
         self.value = (self.value, [xd, yd])
+
+        # Neither of these options work
+#        self.value = (xs/y.w, [xd, yd])
+#        self.value = (min(xs/y.w, ys/x.w), [xd, yd])
+
 
 
 zero = Expon(0.0, None)
 one = Expon(1.0, ())
+
+Expon.zero = zero
+Expon.one = one

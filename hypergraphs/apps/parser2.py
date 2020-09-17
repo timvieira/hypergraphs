@@ -42,8 +42,8 @@ def parse(sentence, rhs, binary, unary, terminal, zero):
                             span[i,k].add(x)
                             c[i,k,x] += c[i,j,y] * c[j,k,z] * binary(sentence,x,y,z,i,j,k)
             # one-step of unary rules.
-            for y in set(span[i,k]):
-                for x in rhs[y,]:
-                    span[i,k].add(x)
-                    c[i,k,x] += c[i,k,y] * unary(sentence,x,y,i,k)
+#            for y in set(span[i,k]):
+#                for x in rhs[y,]:
+#                    span[i,k].add(x)
+#                    c[i,k,x] += c[i,k,y] * unary(sentence,x,y,i,k)
     return c

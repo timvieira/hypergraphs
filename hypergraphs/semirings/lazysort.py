@@ -1,8 +1,8 @@
 import numpy as np
 from arsenal.iterextras import sorted_union, sorted_product
+from hypergraphs.semirings import base
 
-
-class _LazySort:
+class _LazySort(base.Semiring):
     def __add__(self, other):
         if self.is_zero(): return other
         if other.is_zero(): return self
@@ -14,12 +14,6 @@ class _LazySort:
         return Prod(self, other)
     def is_zero(self):
         return self == zero
-    @classmethod
-    def zero(cls):
-        return zero
-    @classmethod
-    def one(cls):
-        return one
 
 
 # Notice that in this multiplication is neither associative, nor commutative.
@@ -67,6 +61,10 @@ class Prod(_LazySort):
 
 zero = LazySort(0.0, None)
 one = LazySort(1.0, ())
+
+LazySort.zero = zero
+LazySort.one = one
+
 
 
 def post_process(f, derivation):
