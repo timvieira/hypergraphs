@@ -1,43 +1,38 @@
 from nltk import ImmutableTree
+from hypergraphs.semirings import base
 
 
-class Viterbi(object):
+class MaxPlus(base.Semiring):
 
     def __init__(self, score, d):
         self.score = score
         self.d = d
 
     def __add__(self, other):
-        if other is zero: return self
-        if self is zero: return other
+        if other is MaxPlus.zero: return self
+        if self is MaxPlus.zero: return other
         if self.score >= other.score:
             return self
         else:
             return other
 
     def __mul__(self, other):
-        if other is one: return self
-        if self is one: return other
-        return Viterbi(self.score + other.score, (self, other))
+        if other is MaxPlus.one: return self
+        if self is MaxPlus.one: return other
+        return MaxPlus(self.score + other.score, (self, other))
+
+    def __lt__(self, other):
+        return self.score < other.score
 
     def derivation(self):
         return _derivation(self)
 
     def __repr__(self):
-        return f'Viterbi({self.score}, {self.d})'
-
-    @classmethod
-    def zero(cls):
-        return zero
-
-    @classmethod
-    def one(cls):
-        return one
+        return f'MaxPlus({self.score}, {self.d})'
 
 
-ninf = float('-inf')
-zero = Viterbi(ninf, None)
-one = Viterbi(0.0, ())
+MaxPlus.zero = MaxPlus(float('-inf'), None)
+MaxPlus.one = MaxPlus(0.0, ())
 
 
 def _derivation(x):

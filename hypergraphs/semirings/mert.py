@@ -6,7 +6,7 @@ import pylab as pl
 from scipy.spatial.qhull import Delaunay
 
 from pandas import DataFrame
-from hypergraphs.semirings.viterbi import _derivation, post_process
+from hypergraphs.semirings.maxplus import _derivation, post_process
 
 # TODO: Optimization: Use the LazySort semiring to iterate over points in sorted
 # order.  Essentially, the convex hull semiring is just a pruned version of the

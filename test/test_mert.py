@@ -18,27 +18,25 @@ def semiring_enumeration(sentence, rhs):
     def binary(_,X,Y,Z,I,J,K): return LazySort(1, X) #Edge(1, (X,I,K), [(Y,I,J), (Z,J,K)]))
     def unary(_,X,Y,I,K):      return LazySort(1, X) #Edge(1, (X,I,K), [(Y,I,K)]))
     def terminal(_,W,I):       return LazySort(1, W) #Edge(1, (W,I,I+1), []))
-    c = parse(sentence, rhs, binary, unary, terminal, LazySort.zero())
+    c = parse(sentence, rhs, binary, unary, terminal, LazySort.zero)
     return c[0,len(sentence),'S']
 
 
 def semiring_linesearch(sentence, rhs, weights, step, direction, binary_features, unary_features):
-    from hypergraphs.semirings.viterbi import Viterbi
+    from hypergraphs.semirings.maxplus import MaxPlus
 
     def binary(sentence,X,Y,Z,i,j,k):
         fs = binary_features(sentence,X,Y,Z,i,j,k)
-        return Viterbi(weights[fs].sum() + step*direction[fs].sum(), X)
+        return MaxPlus(weights[fs].sum() + step*direction[fs].sum(), X)
 
     def unary(sentence,X,Y,i,k):
         fs = unary_features(sentence,X,Y,i,k)
-        return Viterbi(weights[fs].sum() + step*direction[fs].sum(), X)
+        return MaxPlus(weights[fs].sum() + step*direction[fs].sum(), X)
 
     def terminal(sentence,W,i):
-        return Viterbi(0, W)     # semiring one
+        return MaxPlus(0, W)     # semiring one
 
-    zero = Viterbi(float('-inf'), None)
-
-    c = parse(sentence, rhs, binary, unary, terminal, zero)
+    c = parse(sentence, rhs, binary, unary, terminal, MaxPlus.zero)
     return c[0,len(sentence),'S']
 
 
