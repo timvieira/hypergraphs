@@ -36,7 +36,7 @@ class Sum(Sample):
         self.x = x; self.y = y
         super().__init__(x.w + y.w, d=[x,y])
     def sample(self):
-        if np.random.uniform(0, 1) <= self.x.w / (self.x.w + self.y.w):
+        if np.random.uniform(0, 1) * (self.x.w + self.y.w) <= self.x.w:
             return self.x.sample()
         else:
             return self.y.sample()
