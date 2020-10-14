@@ -90,10 +90,10 @@ class Hypergraph(object):
 
     def inside(self):
         "Run inside algorithm on hypergraph."
-        B = defaultdict(self.kind.zero)
+        B = self.kind.chart()
         for x in self.toposort():
             for e in self.incoming[x]:
-                v = self.kind.one()
+                v = self.kind.one
                 for b in e.body:
                     v *= B[b]
                 B[x] += e.weight * v
@@ -102,12 +102,16 @@ class Hypergraph(object):
     # TODO: modify the outside algorithm to support non-AC multiplication.
     def outside(self, B):
         "Run outside algorithm on hypergraph."
-        A = defaultdict(self.kind.zero)
-        A[self.root] = self.kind.one()
+        A = self.kind.chart()
+        A[self.root] = self.kind.one
         for x in reversed(list(self.toposort())):
             for e in self.incoming[x]:
+                # TODO: The code below is quadratic in the arity of the edge,
+                # this can be improved to linear with the gradient-of-product
+                # trick.  Or, equivalently, by binarizing the edges of the
+                # graph.
                 for y in e.body:
-                    w = self.kind.one()
+                    w = self.kind.one
                     for z in e.body:
                         if y == z:
                             w *= A[x]
@@ -128,7 +132,7 @@ class Hypergraph(object):
         - `zero`: Allocate a zero of type `X`.
 
         """
-        xhat = zero()
+        xhat = zero
         for e in self.edges:
             kbar = A[e.head]
             for b in e.body:

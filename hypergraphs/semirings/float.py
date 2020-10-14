@@ -15,3 +15,7 @@ class Float:
     @classmethod
     def chart(cls):
         return defaultdict(float)
+
+    @staticmethod
+    def star(x):
+        return 1/(1-x)

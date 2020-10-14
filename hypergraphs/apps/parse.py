@@ -59,7 +59,7 @@ def parse_forest(sentence, grammar, steps=1):
     g = WCFG()
     g.root = (0, N, grammar.root, steps)
 
-    one = LogVal.one()
+    one = LogVal.one
     span = np.empty((N,N+1), dtype=set)
     for I in range(N):
         for K in range(N+1):

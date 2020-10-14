@@ -66,7 +66,7 @@ class PDA:
     def __init__(self, g):
         assert isinstance(g, PCFG)
         self.g = g
-        self.total = g.kind.one()
+        self.total = g.kind.one
         self.closed = []
         self.stack = []
 

@@ -14,6 +14,8 @@ class _LazySort(base.Semiring):
         return Prod(self, other)
     def is_zero(self):
         return self == zero
+    def star(self):
+        return Star(self)
 
 
 # Notice that in this multiplication is neither associative, nor commutative.
@@ -57,6 +59,18 @@ class Prod(_LazySort):
         yield from sorted_product(np.product, self.a, self.b)
     def __repr__(self):
         return f'({self.a} * {self.b})'
+
+
+class Star(_LazySort):
+    def __init__(self, a):
+        self.a = a
+    def __iter__(self):
+        v = one
+        while True:
+            yield from v
+            v *= self.a
+    def __repr__(self):
+        return f'star({self.a})'
 
 
 zero = LazySort(0.0, None)

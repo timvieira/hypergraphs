@@ -27,6 +27,10 @@ class Sample(base.Semiring):
         if self is zero: return zero
         return Prod(self, other)
 
+    @staticmethod
+    def star(x):
+        return Star(x)
+
     def __repr__(self):
         return f'{self.__class__.__name__}({self.w}, {self.d})'
 
@@ -50,6 +54,23 @@ class Prod(Sample):
         xs,xd = self.x.sample()
         ys,yd = self.y.sample()
         return [xs*ys, [xd, yd]]
+
+
+class Star(Sample):
+    def __init__(self, x):
+        self.x = x
+        super().__init__(1/(1-x.w), d=[x])
+    def sample(self):
+        # sample a number of repetitions for a geometric distribution
+        zs = 1
+        zd = []
+        while True:
+            if np.random.uniform() <= self.x.w:
+                xs, xd = self.x.sample()
+                zs = zs*xs
+                zd = [zd, xd]
+            else:
+                return zs, zd
 
 
 zero = Sample(0.0, None)

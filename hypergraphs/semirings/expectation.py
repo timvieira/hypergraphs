@@ -9,7 +9,13 @@ from hypergraphs.semirings.logval import LogVal, LogValVector
 #    "Second-order Expectation Semiring by nesting."
 #    return Expectation(Expectation(p, r), Expectation(s, t))
 
-class SecondOrderExpectation:
+# TODO: switch to "meta" semirings: the expectation semiring (first and second)
+# can be constructed out of more basic semirings (thats were the zero and one
+# elements come from).  This will avoid the hard coded LogVal.zero stuff below.
+
+from hypergraphs.semirings import base
+
+class SecondOrderExpectation(base.Semiring):
     """Second-order Expectation Semiring.
 
     Note: We don't recommend using this implementation. For most computations
@@ -24,22 +30,8 @@ class SecondOrderExpectation:
         self.s = s
         self.t = t
 
-    @classmethod
-    def zero(cls):
-        return cls(LogVal.zero(),
-                   LogVal.zero(),
-                   LogValVector(),
-                   LogValVector())
-
     def __repr__(self):
         return repr((self.p, self.r, self.s, self.t))
-
-    @staticmethod
-    def one():
-        return SecondOrderExpectation(LogVal.one(),
-                                      LogVal.zero(),
-                                      LogValVector(),
-                                      LogValVector())
 
     def __add__(self, y):
         return SecondOrderExpectation(self.p + y.p,
@@ -56,34 +48,42 @@ class SecondOrderExpectation:
                                       p1*t2 + p2*t1 + r1*s2 + r2*s1)
 
 
-class Expectation:
-    """
-    First-order Expectation Semiring.
-    """
+SecondOrderExpectation.zero = SecondOrderExpectation(LogVal.zero,
+                                                     LogVal.zero,
+                                                     LogValVector(),
+                                                     LogValVector())
+SecondOrderExpectation.one = SecondOrderExpectation(LogVal.one,
+                                                    LogVal.zero,
+                                                    LogValVector(),
+                                                    LogValVector())
 
-    def __init__(self, p, r):
-        self.p = p
-        self.r = r
+def make_expectation(P, R):
 
-    @classmethod
-    def zero(cls):
-        return cls(LogVal.zero(),
-                   LogVal.zero())
+    class Expectation(base.Semiring):
+        """
+        First-order Expectation Semiring.
+        """
 
-    def __repr__(self):
-        return repr((self.p, self.r, self.s, self.t))
+        def __init__(self, p, r):
+            self.p = p
+            self.r = r
 
-    @staticmethod
-    def one():
-        return Expectation(LogVal.one(),
-                           LogVal.zero())
+        def __repr__(self):
+            return repr((self.p, self.r))
 
-    def __add__(self, y):
-        return Expectation(self.p + y.p,
-                           self.r + y.r)
+        def __add__(self, y):
+            return Expectation(self.p + y.p,
+                               self.r + y.r)
 
-    def __mul__(self, y):
-        p1,r1 = self.p, self.r
-        p2,r2 = y.p, y.r
-        return Expectation(p1*p2,
-                           p1*r2 + p2*r1)
+        def __mul__(self, y):
+            p1,r1 = self.p, self.r
+            p2,r2 = y.p, y.r
+            return Expectation(p1*p2,
+                               p1*r2 + p2*r1)
+
+    Expectation.zero = Expectation(P.zero, R.zero)
+    Expectation.one = Expectation(P.one, R.zero)
+
+    return Expectation
+
+Expectation = make_expectation(LogVal, LogVal)
