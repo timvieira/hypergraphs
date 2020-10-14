@@ -49,7 +49,7 @@ class Prod(Sample):
                 xs,xd = x
                 _,yd = y
 
-                # We have to random variates
+                # We have two random variates
                 #  X = -log(Ux)/Wx ~ Expon(Wx)
                 #  Y = -log(Uy)/Wy ~ Expon(Wy)
                 # We want to construct a new one using existing randomness
