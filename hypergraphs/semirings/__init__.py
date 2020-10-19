@@ -3,5 +3,6 @@ from hypergraphs.semirings.mert import ConvexHull, Point
 from hypergraphs.semirings.lazysort import LazySort, post_process, flatten
 from hypergraphs.semirings.maxplus import MaxPlus
 from hypergraphs.semirings.maxtimes import MaxTimes
+from hypergraphs.semirings.minplus import MinPlus
 from hypergraphs.semirings.logval import LogVal
 from hypergraphs.semirings.expectation import Expectation, SecondOrderExpectation

@@ -62,6 +62,8 @@ class PCFG(WCFG):
         return PDA(self).run()
 
 
+from hypergraphs.semirings.util import derivation
+# This is experimental
 class PDA:
     def __init__(self, g):
         assert isinstance(g, PCFG)
@@ -89,7 +91,7 @@ class PDA:
                 closed.append(v)
             else:
                 stack.append(b)
-        return self.derivation()
+        return derivation(self)
 
     def sample(self, v):
         "Sample an edge (dotted rule)."

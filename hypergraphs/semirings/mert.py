@@ -6,7 +6,7 @@ import pylab as pl
 from scipy.spatial.qhull import Delaunay
 
 from pandas import DataFrame
-from hypergraphs.semirings.maxplus import _derivation, post_process
+from hypergraphs.semirings.util import derivation
 
 # TODO: Optimization: Use the LazySort semiring to iterate over points in sorted
 # order.  Essentially, the convex hull semiring is just a pruned version of the
@@ -44,7 +44,7 @@ class ConvexHull:
         if not self.points:
             print('ConvexHull is empty.')
             return
-        df = DataFrame([(x.m, x.b, x.derivation()) for x in self], columns=['m','b','d'])
+        df = DataFrame([(x.m, x.b, derivation(x)) for x in self], columns=['m','b','d'])
         # Keep a reference to PointBrowser to keep things for breaking do to GC.
         #from arsenal.viz.interact import PointBrowser
         #global br; br = PointBrowser(df, xcol='m', ycol='b')
@@ -76,9 +76,6 @@ class Point(object):
         self.d = d
 
     def __repr__(self):
-        t = self.derivation()
+        t = derivation(self)
         d = t._pformat_flat(nodesep='', parens='()', quotes=False)
         return 'Point(%s, %s, %s)' % (self.m, self.b, d)
-
-    def derivation(self):
-        return _derivation(self)

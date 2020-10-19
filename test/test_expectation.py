@@ -5,8 +5,26 @@ from hypergraphs.semirings import Expectation, SecondOrderExpectation
 from nltk import ImmutableTree as Tree
 #from hypergraphs.alg.insideout import inside_outside_speedup
 #from hypergraphs.alg import insideout
+#from ldp.parsing.util import tree_edges
 
-from ldp.parsing.util import tree_edges
+
+def is_terminal(d):
+    return not isinstance(d, Tree)
+
+def tree_edges(t):
+    """
+    Extract hyperedges from a tree (derivation).
+
+    >>> for x in tree_edges(Tree.fromstring('(A a (B b (C c)) d)')):
+    ...     print x
+    ('A', ['a', 'B', 'd'])
+    ('B', ['b', 'C'])
+    ('C', ['c'])
+
+    """
+    if is_terminal(t):
+        return []
+    return [(s.label(), [b.label() if isinstance(b, Tree) else b for b in s]) for s in t.subtrees()]
 
 
 def secondorder_graph(E, root):
