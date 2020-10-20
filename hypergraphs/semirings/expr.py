@@ -147,8 +147,8 @@ def maxtimes(x):
         [y] = x.args
         return maxtimes(y)
     elif isinstance(x, Expr):
-        # Weights must be specified as base cases.  By convention they should be
-        # the first element of the expression's args.
+        # Weights must be specified as base cases.  By convention, they should
+        # be the first element of the expression's args.
         return x
     else:
         assert False
@@ -209,7 +209,7 @@ def test():
 
     from pprint import pprint
     adj = backprop(root)
-    pprint(adj)
+    pprint(dict(adj))
 
     print()
     print(adj[a])
