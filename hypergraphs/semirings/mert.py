@@ -29,53 +29,66 @@ class ConvexHull:
     def __iter__(self):
         return iter(self.points)
     def __add__(self, other):
+        if self is zero: return other
+        if other is zero: return self
         assert isinstance(other, ConvexHull)
         return ConvexHull(list(self) + list(other))
     def __mul__(self, other):
+        if other is one: return self
+        if self is one: return other
+        if other is zero: return zero
+        if self is zero: return zero
         # http://en.wikipedia.org/wiki/Minkowski_addition
         assert isinstance(other, ConvexHull)
-        return ConvexHull([Point(a.m + b.m,
-                                 a.b + b.b,
+        return ConvexHull([Point(a.x + b.x,
+                                 a.y + b.y,
                                  (a, b))
                            for a in self
                            for b in other])
     def draw(self):
         "Visualize points with interactive scatter plot browser."
         if not self.points:
-            print('ConvexHull is empty.')
+            print('[warn] ConvexHull is empty.')
             return
-        df = DataFrame([(x.m, x.b, derivation(x)) for x in self], columns=['m','b','d'])
+        df = DataFrame([(p.x, p.y, derivation(p)) for p in self],
+                       columns=['x','y','d'])
         # Keep a reference to PointBrowser to keep things for breaking do to GC.
         #from arsenal.viz.interact import PointBrowser
         #global br; br = PointBrowser(df, xcol='m', ycol='b')
-        pl.scatter(df.m, df.b)
+        pl.scatter(df.x, df.y)
         pl.show()
+
 
 
 def conv(points):
     "Indices of the convex hull."
-    _points = points
-    points = np.array([(x.m, x.b) for x in points])
     if len(points) <= 2:
-        hul = range(len(points))
+        return points
     else:
-        tri = Delaunay(points)
+        tri = Delaunay(np.array([(x.x, x.y) for x in points]))
         hul = list({v for x in tri.convex_hull for v in x})
-    return list(np.array(_points)[hul])
+        return [points[i] for i in hul]
 
 
-class Point(object):
+class Point:
     """
     Two-dimensional point with backpointers so that we can reconstruct the
     derivation.
     """
 
-    def __init__(self, m, b, d):
-        self.m = m
-        self.b = b
+    def __init__(self, x, y, d):
+        self.x = x
+        self.y = y
         self.d = d
 
     def __repr__(self):
         t = derivation(self)
         d = t._pformat_flat(nodesep='', parens='()', quotes=False)
-        return 'Point(%s, %s, %s)' % (self.m, self.b, d)
+        return f'Point({self.x}, {self.y}, {d})'
+
+
+zero = ConvexHull([])
+one = ConvexHull([Point(0,0,None)])
+
+ConvexHull.zero = zero
+ConvexHull.one = one
