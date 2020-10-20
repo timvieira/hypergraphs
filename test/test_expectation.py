@@ -237,18 +237,23 @@ def test():
     check_equal(Q, b)
 
 
-    fog = firstorder_graph(E, root)
-    B = fog.inside()
-    A = fog.outside(B)
-    def X(e):
-        p,r,s = e.weight.p, e.weight.r, e.weight.s
-        return (p*s, p*r*s)
+    # TODO: [2020-10-20 Tue] insideout speedup is failing.
+    if 1:
+        from hypergraphs.semirings.vector import make_vector
+        V = make_vector(Expectation)
 
-    khat, xhat = fog.insideout(B, A, X, LogValVector.zero)
-    v = SecondOrderExpectation(khat.p, khat.r, xhat.s, xhat.t)
+        fog = firstorder_graph(E, root)
+        B = fog.inside()
+        A = fog.outside(B)
+        def X(e):
+            p,r,s = e.weight.p, e.weight.r, e.weight.s
+            return Expectation(p*s, p*r*s)
 
-    dump(v)
-    check_equal(Q, v)
+        khat, xhat = fog.insideout(B, A, X, V.zero)
+        v = SecondOrderExpectation(khat.p, khat.r, xhat.s, xhat.t)
+
+        dump(v)
+        check_equal(Q, v)
 
 
 if __name__ == '__main__':

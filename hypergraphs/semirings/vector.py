@@ -32,6 +32,7 @@ def make_vector(R):
                 v += self[k]*w[k]
             return v
         def __add__(self, x):
+            assert isinstance(x, Vector), x
             c = self.__class__()
             for k,v in self.x.items():
                 c.x[k] += v
