@@ -26,7 +26,7 @@ def parse(sentence, rhs, binary, unary, terminal, zero):
         # Terminal
         span[i,k].add(w)
         c[i,k,w] = terminal(sentence,w,i)
-        # one-step of unary rules
+        # Pre-terminal rules
         for y in set(span[i,k]):
             for x in rhs[y,]:
                 span[i,k].add(x)
@@ -41,9 +41,22 @@ def parse(sentence, rhs, binary, unary, terminal, zero):
                         for x in rhs[y,z]:
                             span[i,k].add(x)
                             c[i,k,x] += c[i,j,y] * c[j,k,z] * binary(sentence,x,y,z,i,j,k)
-            # one-step of unary rules.
-#            for y in set(span[i,k]):
-#                for x in rhs[y,]:
-#                    span[i,k].add(x)
-#                    c[i,k,x] += c[i,k,y] * unary(sentence,x,y,i,k)
     return c
+
+
+#from arsenal.cache import memoize
+#def rec(sentence, rhs, binary, unary, terminal):
+#
+#    @memoize
+#    def p(i,k,x):
+#        if k - i == 1:
+#            y = sentence[i]
+#            return unary(sentence,x,y,i,k) * terminal(sentence,y,i)
+#
+#        return sum(
+#            p(i,j,y) * p(j,k,z) * binary(sentence,x,y,z,i,j,k)
+#            for j in range(i+1, k)
+#            for y,z in rhs[x]
+#        )
+#
+#    return p(0, len(sentence), 'S')
