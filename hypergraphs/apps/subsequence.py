@@ -7,16 +7,16 @@ align = namedtuple('align', 'x,y')
 def subsequence(a, b, w, Weight):
     N = len(a); M = len(b)
     c = Weight.chart()
-    c[N, M] = Weight.one
-    for i in reversed(range(N+1)):
-        for j in reversed(range(M+1)):
+    c[0, 0] = Weight.one
+    for i in range(N+1):
+        for j in range(M+1):
             if i < N and j < M:
-                c[i, j] += Weight.lift(w(a[i], b[j]), align(a[i], b[j])) * c[i + 1, j + 1]
+                c[i+1, j+1] += c[i, j] * Weight.lift(w(a[i], b[j]), align(a[i], b[j]))
             if i < N:
-                c[i, j] += Weight.lift(w(a[i], ε), align(a[i], ε)) * c[i + 1,     j]
+                c[i+1, j] += c[i, j] * Weight.lift(w(a[i], ε), align(a[i], ε))
             if j < M:
-                c[i, j] += Weight.lift(w(ε, b[j]), align(ε, b[j])) * c[    i, j + 1]
-    return c[0, 0]
+                c[i, j+1] += c[i, j] * Weight.lift(w(ε, b[j]), align(ε, b[j]))
+    return c[N, M]
 
 
 def default_cost(a,b):
@@ -49,8 +49,17 @@ def test():
     from hypergraphs.semirings import LazySort
     from hypergraphs.semirings.sampling.lazy2 import Sample
     from arsenal.iterextras import take
-    K = 5
 
+    # Check that we do not have duplicate alignments
+    dups = set()
+    for x in subsequence('abcabc', 'abcb', default_cost, LazySort):
+        x = str(x.data)
+        assert x not in dups
+        dups.add(x)
+
+    print('number of alignments', len(dups))
+
+    K = 5
     print()
     print(f'Top K={K}')
     print('========')

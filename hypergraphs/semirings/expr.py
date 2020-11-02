@@ -139,7 +139,12 @@ def maxtimes(x):
     "Sample from expr x wrt weighting function w."
     if isinstance(x, Sum):
         y,z = x.args
-        return max(maxtimes(y), maxtimes(z))
+        yy = maxtimes(y)
+        zz = maxtimes(z)
+        if weight(yy) > weight(zz):
+            return yy
+        else:
+            return zz
     elif isinstance(x, Prod):
         y,z = x.args
         return maxtimes(y) * maxtimes(z)
@@ -155,34 +160,45 @@ def maxtimes(x):
 
 
 from collections import defaultdict
+
 def backprop(expr):
     """
     Transforms a sum-product graph into another that corresponds to the
-    adjoint program.
+    adjoint.
     """
 
-    @memoize
-    def visit(X):
-        v = adj[X]
-        if isinstance(X, Sum):
-            Y,Z = X.args
+    def visit(Z):
+        v = adj[Z]
+        if isinstance(Z, Sum):
+            X,Y = Z.args
+            adj[X] += v
             adj[Y] += v
-            adj[Z] += v
-            visit(Y)
-            visit(Z)
-        elif isinstance(X, Prod):
-            Y,Z = X.args
-            adj[Y] += v * Z
-            adj[Z] += Y * v
-            visit(Y)
-            visit(Z)
+        elif isinstance(Z, Prod):
+            X,Y = Z.args
+            adj[X] += v * Y
+            adj[Y] += X * v
 
     adj = defaultdict(lambda: zero)
     adj[expr] = one
 
-    visit(expr)
+    for x in reversed(list(toposort(expr))):
+        visit(x)
 
     return adj
+
+
+def toposort(root):
+    visited = set()
+
+    def t(v):
+        if v not in visited:
+            visited.add(v)
+            if isinstance(v, (Sum, Prod)):
+                for y in v.args:
+                    yield from t(y)
+            yield v
+
+    yield from t(root)
 
 
 def test():

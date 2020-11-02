@@ -17,7 +17,7 @@ class MaxTimes(base.Semiring):
     def __mul__(self, other):
         if other is one: return self
         if self is one: return other
-        return MaxTimes(self.score * other.score, (self, other))
+        return MaxTimes(self.score * other.score, (self.d, other.d))
 
     def __lt__(self, other):
         return self.score < other.score
