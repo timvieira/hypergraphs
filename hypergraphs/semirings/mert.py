@@ -45,19 +45,26 @@ class ConvexHull:
                                  (a, b))
                            for a in self
                            for b in other])
-    def draw(self):
+    def draw(self, label_fmt=None):
         "Visualize points with interactive scatter plot browser."
         if not self.points:
             print('[warn] ConvexHull is empty.')
             return
-        df = DataFrame([(p.x, p.y, derivation(p)) for p in self],
-                       columns=['x','y','d'])
-        # Keep a reference to PointBrowser to keep things for breaking do to GC.
-        #from arsenal.viz.interact import PointBrowser
-        #global br; br = PointBrowser(df, xcol='m', ycol='b')
-        pl.scatter(df.x, df.y)
-        pl.show()
 
+        import scipy.spatial
+        points = np.array([(p.x, p.y) for p in self.points])
+        hull = scipy.spatial.ConvexHull(points)
+        for simplex in hull.simplices:
+            pl.plot(points[simplex, 0], points[simplex, 1], 'k-', zorder=-1, alpha=0.5, lw=.5)
+
+        for p in self:
+            pl.scatter(p.x, p.y, c='r', alpha=0.5, zorder=-1)
+
+        pl.box(False)
+        pl.xticks([p.x for p in self], rotation='vertical')
+        pl.yticks([p.y for p in self])
+        for p in self:
+            pl.text(x=p.x, y=p.y, s=str(p.d) if label_fmt is None else label_fmt(p))
 
 
 def conv(points):
