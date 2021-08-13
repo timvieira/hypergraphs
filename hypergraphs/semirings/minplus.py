@@ -26,6 +26,13 @@ class MinPlus(base.Semiring):
     def __repr__(self):
         return f'MinPlus({self.cost}, {self.d})'
 
+    @classmethod
+    def multiplicity(cls,x,m):
+        if m > 0:
+            return x
+        else:
+            return cls.zero
+
 
 MinPlus.zero = zero = MinPlus(float('inf'), None)
 MinPlus.one = one = MinPlus(0.0, ())

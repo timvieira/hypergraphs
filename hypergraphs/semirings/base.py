@@ -12,3 +12,7 @@ class Semiring:
     @classmethod
     def lift(cls, *args):
         return cls(*args)
+    @classmethod
+    def multiplicity(cls, v, m):
+        raise NotImplementedError
+

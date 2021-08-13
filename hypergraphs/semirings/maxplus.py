@@ -23,6 +23,13 @@ class MaxPlus(base.Semiring):
     def __repr__(self):
         return f'MaxPlus({self.score}, {self.d})'
 
+    @classmethod
+    def multiplicity(cls,x,m):
+        if m > 0:
+            return x
+        else:
+            return cls.zero
+
 
 MaxPlus.zero = zero = MaxPlus(float('-inf'), None)
 MaxPlus.one = one = MaxPlus(0.0, ())

@@ -2,6 +2,10 @@ import numpy as np
 from arsenal.iterextras import sorted_union, sorted_product
 from hypergraphs.semirings import base
 
+# TODO: create a LazySort builder which is parametric in the underlying ops,
+# just like expectation semiring.  This will reuse code for max-sum, min-sum,
+# sum-prod, and even lexicographic semirings.
+
 class _LazySort(base.Semiring):
     def __add__(self, other):
         if self.is_zero(): return other
@@ -16,12 +20,15 @@ class _LazySort(base.Semiring):
         return self == zero
     def star(self):
         return Star(self)
+    def __abs__(self):
+        return 0 #abs(self.score)
 
 
 # Notice that in this multiplication is neither associative, nor commutative.
 # This is why we get out a derivation tree (with parentheses).
 class LazySort(_LazySort):
     def __init__(self, score, data):
+        assert isinstance(score, (int,float)), score
         self.score = score
         self.data = data
     def __mul__(self, other):

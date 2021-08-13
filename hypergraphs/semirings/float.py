@@ -19,3 +19,7 @@ class Float:
     @staticmethod
     def star(x):
         return 1/(1-x)
+
+    @classmethod
+    def multiplicity(cls,x,m):
+        return x*m
