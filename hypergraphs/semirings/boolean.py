@@ -24,7 +24,12 @@ class Boolean(base.Semiring):
         return self.score < other.score
 
     def __repr__(self):
-        return f'Boolean({self.score}, {self.d})'
+#        return f'Boolean({self.score}, {self.d})'
+        return f'{self.score}'
+
+    @staticmethod
+    def star(x):
+        return self.one
 
     @classmethod
     def lift(cls, score, d):
@@ -34,9 +39,9 @@ class Boolean(base.Semiring):
             return cls(score, d)
 
     @classmethod
-    def multiplicity(cls,x,m):
+    def multiplicity(cls,v,m):
         if m > 0:
-            return x
+            return v
         else:
             return cls.zero
 

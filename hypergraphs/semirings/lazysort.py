@@ -22,13 +22,20 @@ class _LazySort(base.Semiring):
         return Star(self)
     def __abs__(self):
         return 0 #abs(self.score)
+    @classmethod
+    def multiplicity(cls, v, m):
+        if m == 0:
+            return cls.zero
+        else:
+            assert m > 0, m
+            return v
 
 
 # Notice that in this multiplication is neither associative, nor commutative.
 # This is why we get out a derivation tree (with parentheses).
 class LazySort(_LazySort):
     def __init__(self, score, data):
-        assert isinstance(score, (int,float)), score
+        #assert isinstance(score, (int,float)), score
         self.score = score
         self.data = data
     def __mul__(self, other):
@@ -41,7 +48,7 @@ class LazySort(_LazySort):
         else:
             return super().__mul__(other)
     def __lt__(self, other):
-        return self.score > other.score   # Warning: this is backwards!
+        return other.score < self.score    # Warning: this is backwards!
     def __iter__(self):
         yield self
     def __repr__(self):
@@ -52,16 +59,19 @@ class Sum(_LazySort):
     def __init__(self, a, b):
         self.a = a
         self.b = b
+        assert isinstance(a, _LazySort) and isinstance(b, _LazySort), [a,b]
     def __iter__(self):
         yield from sorted_union(self.a, self.b)
     def __repr__(self):
-        return f'({self.a} + {self.b})'
+#        return f'({self.a} + {self.b})'
+        return f'sum(...)'
 
 
 class Prod(_LazySort):
     def __init__(self, a, b):
         self.a = a
         self.b = b
+        assert isinstance(a, _LazySort) and isinstance(b, _LazySort), [a,b]
     def __iter__(self):
         yield from sorted_product(np.product, self.a, self.b)
     def __repr__(self):
@@ -71,6 +81,7 @@ class Prod(_LazySort):
 class Star(_LazySort):
     def __init__(self, a):
         self.a = a
+        assert isinstance(a, _LazySort)
     def __iter__(self):
         v = one
         while True:
@@ -85,7 +96,6 @@ one = LazySort(1.0, ())
 
 LazySort.zero = zero
 LazySort.one = one
-
 
 
 def post_process(f, derivation):

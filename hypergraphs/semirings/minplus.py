@@ -33,6 +33,12 @@ class MinPlus(base.Semiring):
         else:
             return cls.zero
 
+    def __eq__(self, other):
+        return self.cost == other.cost and self.d == other.d
+
+    def __hash__(self):
+        return hash((self.cost, self.d))
+
 
 MinPlus.zero = zero = MinPlus(float('inf'), None)
 MinPlus.one = one = MinPlus(0.0, ())

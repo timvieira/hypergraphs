@@ -1,5 +1,8 @@
 from hypergraphs.semirings import base
 
+# The Łukasiewicz semiring: the closed interval [0,1] with addition given by
+# max(a,b) and multiplication given by max(0, a + b - 1) appears in multi-valued
+# logic.
 
 class Bottleneck(base.Semiring):
 
@@ -8,19 +11,22 @@ class Bottleneck(base.Semiring):
         self.d = d
 
     def __add__(self, other):
-        if self.score >= other.score:
-            return self
-        else:
-            return other
+        return max(self, other)
 
     def __mul__(self, other):
-        if self.score <= other.score:
-            return self
-        else:
-            return other
+        return min(self, other)
+
+    def __lt__(self, other):
+        return self.score < other.score
 
     def __repr__(self):
         return f'Bottleneck({self.score}, {self.d})'
+
+    def multiplicity(self, m):
+        if m > 0:
+            return self
+        else:
+            return self.zero
 
 
 inf = float('inf')

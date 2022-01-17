@@ -21,7 +21,20 @@ class MaxTimes(base.Semiring):
 
     def __repr__(self):
         return f'MaxTimes({self.score}, {self.d})'
+#        return f'{self.score}'
 
+    @classmethod
+    def multiplicity(cls,x,m):
+        if m > 0:
+            return x
+        else:
+            return cls.zero
+
+    def __eq__(self, other):
+        return self.score == other.score and self.d == other.d
+
+    def __hash__(self):
+        return hash((self.score, self.d))
 
 MaxTimes.zero = zero = MaxTimes(float('-inf'), None)
 MaxTimes.one = one = MaxTimes(1, ())

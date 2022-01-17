@@ -30,6 +30,12 @@ class MaxPlus(base.Semiring):
         else:
             return cls.zero
 
+    def __eq__(self, other):
+        return self.score == other.score and self.d == other.d
 
+    def __hash__(self):
+        return hash((self.score, self.d))
+
+    
 MaxPlus.zero = zero = MaxPlus(float('-inf'), None)
 MaxPlus.one = one = MaxPlus(0.0, ())
