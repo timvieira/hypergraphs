@@ -7,6 +7,18 @@ class MaxPlus(base.Semiring):
         self.score = score
         self.d = d
 
+    def __repr__(self):
+        return f'MaxPlus({self.score}, {self.d})'
+
+    def __eq__(self, other):
+        return isinstance(other, MaxPlus) and self.score == other.score
+
+    def __hash__(self):
+        return hash(self.score)
+
+    def __lt__(self, other):
+        return isinstance(other, MaxPlus) and self.score < other.score
+
     def __add__(self, other):
         return max(self, other)
 
@@ -17,12 +29,6 @@ class MaxPlus(base.Semiring):
         if self is zero: return zero
         return MaxPlus(self.score + other.score, [self.d, other.d])
 
-    def __lt__(self, other):
-        return self.score < other.score
-
-    def __repr__(self):
-        return f'MaxPlus({self.score}, {self.d})'
-
     @classmethod
     def multiplicity(cls,x,m):
         if m > 0:
@@ -30,12 +36,7 @@ class MaxPlus(base.Semiring):
         else:
             return cls.zero
 
-    def __eq__(self, other):
-        return self.score == other.score and self.d == other.d
 
-    def __hash__(self):
-        return hash((self.score, self.d))
 
-    
 MaxPlus.zero = zero = MaxPlus(float('-inf'), None)
 MaxPlus.one = one = MaxPlus(0.0, ())

@@ -15,4 +15,6 @@ class Semiring:
     @classmethod
     def multiplicity(cls, v, m):
         raise NotImplementedError
-
+    @classmethod
+    def multiple(cls, m):
+        return cls.multiplicity(cls.one, m)

@@ -53,6 +53,8 @@ class LazySort(_LazySort):
         yield self
     def __repr__(self):
         return repr((self.score, self.data))
+    def flat_data(self):
+        return tuple(sorted(flatten(self.data)))
 
 
 class Sum(_LazySort):

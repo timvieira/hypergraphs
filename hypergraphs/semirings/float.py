@@ -23,3 +23,7 @@ class Float:
     @classmethod
     def multiplicity(cls,x,m):
         return x*m
+
+    @classmethod
+    def multiple(cls,m):
+        return m
