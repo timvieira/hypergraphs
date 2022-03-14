@@ -3,7 +3,7 @@ from hypergraphs.semirings import base
 
 class MaxTimes(base.Semiring):
 
-    def __init__(self, score, d):
+    def __init__(self, score, d=None):
         self.score = score
         self.d = d
 
@@ -15,6 +15,16 @@ class MaxTimes(base.Semiring):
 
     def __hash__(self):
         return hash(self.score)
+
+    @classmethod
+    def samples(cls):
+        return [
+            cls.zero,
+            cls.one,
+            cls(3),
+            cls(2),
+            #cls(2.18),
+        ]
 
     def __lt__(self, other):
         return isinstance(other, MaxTimes) and self.score < other.score
@@ -36,6 +46,10 @@ class MaxTimes(base.Semiring):
         else:
             return cls.zero
 
+    def star(self):
+        if self.score > 0: return MaxTimes(float('+inf'), None)
+        return self.one + self
 
-MaxTimes.zero = zero = MaxTimes(float('-inf'), None)
+
+MaxTimes.zero = zero = MaxTimes(0, None)
 MaxTimes.one = one = MaxTimes(1, ())

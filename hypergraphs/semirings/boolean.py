@@ -1,11 +1,16 @@
+import numpy as np
 from hypergraphs.semirings import base
 
 
 class Boolean(base.Semiring):
 
-    def __init__(self, score, d):
+    def __init__(self, score, d=None):
         self.score = (score > 0)
         self.d = d
+
+    @classmethod
+    def samples(cls):
+        return [cls(True), cls(False)]
 
     def __add__(self, other):
         return max(self, other)
@@ -17,8 +22,11 @@ class Boolean(base.Semiring):
         if self is zero: return zero
         return Boolean(self.score and other.score, [self.d, other.d])
 
+    def __hash__(self):
+        return hash(self.score)
+
     def __eq__(self, other):
-        return self.score == other.score and self.d == other.d
+        return self.score == other.score
 
     def __lt__(self, other):
         return self.score < other.score
@@ -27,9 +35,8 @@ class Boolean(base.Semiring):
 #        return f'Boolean({self.score}, {self.d})'
         return f'{self.score}'
 
-    @staticmethod
-    def star(x):
-        return self.one
+    def star(self):
+        return one
 
     @classmethod
     def lift(cls, score, d):

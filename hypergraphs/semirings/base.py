@@ -18,3 +18,14 @@ class Semiring:
     @classmethod
     def multiple(cls, m):
         return cls.multiplicity(cls.one, m)
+    def star_approx(self, T):
+        v = self.one
+        for _ in range(T):
+            v += self * v
+        return v
+    def star_fixpoint(self):
+        prev = self.one
+        while True:
+            curr = prev + self * prev
+            if prev == curr: return curr
+            prev = curr

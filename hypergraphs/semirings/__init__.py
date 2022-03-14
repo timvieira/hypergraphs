@@ -7,3 +7,4 @@ from hypergraphs.semirings.mintimes import MinTimes
 from hypergraphs.semirings.minplus import MinPlus
 from hypergraphs.semirings.logval import LogVal
 from hypergraphs.semirings.expectation import Expectation, SecondOrderExpectation
+from hypergraphs.semirings.float import Float

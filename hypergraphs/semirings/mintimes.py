@@ -3,7 +3,7 @@ from hypergraphs.semirings import base
 
 class MinTimes(base.Semiring):
 
-    def __init__(self, cost, d):
+    def __init__(self, cost, d=None):
         self.cost = cost
         self.d = d
 
@@ -15,6 +15,17 @@ class MinTimes(base.Semiring):
 
     def __hash__(self):
         return hash(self.cost)
+
+    @classmethod
+    def samples(cls):
+        return [
+            cls(float('+inf')),
+            cls.zero,
+            cls.one,
+            cls(+3),
+            cls(2),
+            cls(2.18),
+        ]
 
     def __lt__(self, other):
         return isinstance(other, MinTimes) and self.cost < other.cost
@@ -29,7 +40,6 @@ class MinTimes(base.Semiring):
         if other is zero: return zero
         return MinTimes(self.cost * other.cost, (self.d, other.d))
 
-
     @classmethod
     def multiplicity(cls,x,m):
         if m > 0:
@@ -37,6 +47,9 @@ class MinTimes(base.Semiring):
         else:
             return cls.zero
 
+    def star(self):
+        if self.cost < 0: return MinTimes(float('-inf'), None)
+        return self.one + self
 
 
 MinTimes.zero = zero = MinTimes(float('inf'), None)
