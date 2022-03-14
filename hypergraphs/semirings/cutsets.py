@@ -1,4 +1,7 @@
-class CutSets:
+from hypergraphs.semirings import base
+
+
+class CutSets(base.Semiring):
     """Set of cut sets
 
     Implements: Martelli (1976) "A Gaussian Elimination Algorithm for the
