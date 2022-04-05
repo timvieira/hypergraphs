@@ -26,7 +26,7 @@ class Boolean(base.Semiring):
         return hash(self.score)
 
     def __eq__(self, other):
-        return self.score == other.score
+        return isinstance(other, Boolean) and self.score == other.score
 
     def __lt__(self, other):
         return self.score < other.score
