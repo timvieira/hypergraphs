@@ -9,6 +9,7 @@ setup(name='hypergraphs',
           'nltk',
           'numpy',
           'pandas',
+          'semirings @ git+https://github.com/timvieira/semirings',
       ],
       dependency_links=[
           'https://github.com/timvieira/arsenal.git',
