@@ -6,17 +6,17 @@ Edge = namedtuple('Edge', 'weight, head, body')
 
 class Hypergraph(object):
 
-    def __init__(self, root=None):
+    def __init__(self, root=None, kind=None):
         self.incoming = defaultdict(list)
         self.edges = []
         self.root = root
-        self.kind = None
+        self.kind = kind
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.kind.__name__}, nodes={len(self.nodes)}, edges={len(self.edges)})'
 
     def edge(self, weight, head, *body):
-        self.kind = type(weight)
+        if self.kind is None: self.kind = type(weight)
         e = Edge(weight, head, body)
         self.incoming[e.head].append(e)
         self.edges.append(e)
@@ -63,7 +63,7 @@ class Hypergraph(object):
                         if not self.incoming[b]:
                             terminals.add(b)
             if terminals:
-                print(terminals)
+                #print(terminals)
                 f.write('{ rank = same; %s; }\n' % ('; '.join('"%s"' % (x,) for x in terminals)))
                 for a, b in window(sorted(terminals, key=lambda x: x[0]), 2):
                     f.write('"%s" -> "%s" [dir=none, style=invis, penwidth=1];\n' % (a, b))

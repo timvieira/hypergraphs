@@ -23,7 +23,7 @@ class Float(base.Semiring):
 
     @classmethod
     def chart(cls):
-        return defaultdict(float)
+        return base.Chart(0.0)
 
     @staticmethod
     def star(x):

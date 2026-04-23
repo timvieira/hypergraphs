@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from numpy import log as _log, exp, isnan, log1p as _log1p, expm1
 from arsenal import colors
+from arsenal.maths import log1pexp, log1mexp
 
 
 def log(x):
@@ -15,39 +16,6 @@ def log1p(x):
         return float('-inf')
     return _log1p(x)
 
-
-def log1pexp(x):
-    """
-    Numerically stable implementation of log(1+exp(x)) aka softmax(0,x).
-
-    -log1pexp(-x) is log(sigmoid(x))
-
-    Source:
-    http://cran.r-project.org/web/packages/Rmpfr/vignettes/log1mexp-note.pdf
-    """
-    if x <= -37:
-        return exp(x)
-    elif -37 <= x <= 18:
-        return log1p(exp(x))
-    elif 18 < x <= 33.3:
-        return x + exp(-x)
-    else:
-        return x
-
-
-def log1mexp(x):
-    """
-    Numerically stable implementation of log(1-exp(x))
-
-    Source:
-    http://cran.r-project.org/web/packages/Rmpfr/vignettes/log1mexp-note.pdf
-    """
-    assert x <= 0
-    a = abs(x)
-    if 0 < a <= 0.693:
-        return log(-expm1(-a))
-    else:
-        return log1p(-exp(-a))
 
 from hypergraphs.semirings import base
 class LogVal(base.Semiring):
@@ -86,6 +54,9 @@ class LogVal(base.Semiring):
         c.pos = self.pos == b.pos
         c.ell = self.ell + b.ell
         return c
+
+    def __neg__(self):
+        return LogVal(pos=(not self.pos), ell=self.ell)
 
     def __truediv__(self, b):
         c = LogVal.lift(0.0)

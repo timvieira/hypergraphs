@@ -20,7 +20,6 @@ from hypergraphs.semirings import base
 class Expr(base.Semiring):
     def __init__(self, *args):
         self.args = args
-        assert isinstance(args, tuple)
     def __lt__(self, other):
         if isinstance(other, Expr):
             return self.args < other.args
@@ -193,7 +192,7 @@ def toposort(root):
     def t(v):
         if v not in visited:
             visited.add(v)
-            if isinstance(v, (Sum, Prod)):
+            if isinstance(v, Expr):
                 for y in v.args:
                     yield from t(y)
             yield v

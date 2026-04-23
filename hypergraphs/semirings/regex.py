@@ -1,8 +1,11 @@
 from hypergraphs.semirings import base
 from arsenal.iterextras import merge_roundrobin, fair_product
 
+from arsenal import colors
+#COLOR = '%s'
+COLOR = colors.dark.white
 
-# TODO: create matching methods
+
 class Regex(base.Semiring):
     """
     Regular expressions are compact representation of (possible infinite) sets
@@ -10,9 +13,25 @@ class Regex(base.Semiring):
     expressions as an efficient way to represent the enumeration semiring.
     """
 
+    def expand(self):   # won't terminate with star.
+        x = NULL
+        for y in self:
+            x += y
+        return x
+
+    def trunc(self, K):
+        x = NULL
+        for k, y in enumerate(self):
+            x += y
+            if k >= K: break
+        return x
+
     def star(self):
         if self is NULL: return EPSILON
         return Star(self)
+
+    def __iter__(self):
+        raise NotImplementedError()
 
     def __add__(self, other):
         if other is NULL: return self
@@ -30,9 +49,6 @@ class Regex(base.Semiring):
     def __round__(self, _):
         return self
 
-    def __repr__(self):
-        return f'({self.x}|{self.y})'
-
     @classmethod
     def _lift(self, x):
         return Symbol(x)
@@ -42,6 +58,8 @@ class Disjunction(Regex):
     def __init__(self, x, y):
         self.x = x
         self.y = y
+    def __repr__(self):
+        return f'{self.x} + {self.y}'
     def __hash__(self):
         return hash((self.x, self.y))
     def __eq__(self, other):
@@ -73,7 +91,10 @@ class Concat(Regex):
         self.x = x
         self.y = y
     def __repr__(self):
-        return f'{self.x}⋅{self.y}'
+        x = self.x; y = self.y
+        if isinstance(x, Disjunction): x = f'({x})'
+        if isinstance(y, Disjunction): y = f'({y})'
+        return f'{x}⋅{y}'
     def __iter__(self):
         for x,y in fair_product(self.x, self.y):
             yield x * y
@@ -95,7 +116,7 @@ class Symbol(Regex):
         assert isinstance(x, str) or x is None
         self.x = x
     def __repr__(self):
-        return f'{self.x}'
+        return COLOR % f'{self.x}'
     def __hash__(self):
         return hash(self.x)
     def __eq__(self, other):
@@ -104,8 +125,7 @@ class Symbol(Regex):
         if self == NULL: return
         yield self
     def __lt__(self, other):
-        if isinstance(other, Symbol):
-            return self.x < other.x
+        if isinstance(other, Symbol): return self.x < other.x
         return type(self).__name__ < type(other).__name__
 
 
