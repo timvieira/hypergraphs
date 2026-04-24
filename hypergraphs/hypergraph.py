@@ -182,5 +182,5 @@ class Hypergraph(object):
         return self._sorted().Z()
 
     def _sorted(self):
-        from hypergraphs.semirings import LazySort
+        from semirings import LazySort
         return self.apply(lambda e: LazySort(e.weight, e))

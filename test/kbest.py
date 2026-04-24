@@ -1,4 +1,4 @@
-from hypergraphs.semirings.lazysort import post_process, post_process2
+from hypergraphs.derivation import post_process, post_process2
 
 
 def test_kbest():

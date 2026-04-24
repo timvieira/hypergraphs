@@ -9,12 +9,9 @@ from hypergraphs.apps.subsets import subsets
 EAGER = False #True
 
 if EAGER:
-    from hypergraphs.semirings.sampling.eager import Expon as Sample
+    from semirings.sampling.eager import Expon as Sample
 else:
-    from hypergraphs.semirings.sampling.lazy2 import Sample
-
-    # much slower because we have to sample more random variates
-    #from hypergraphs.semirings.sampling.lazy import Sample
+    from semirings.sampling.lazy2 import Sample
 
 
 def extract(xs):
@@ -137,7 +134,7 @@ def test_subsets():
 
 def test_parse():
     from arsenal.cache import memoize
-    from hypergraphs.semirings import LazySort
+    from semirings import LazySort
 
     w = memoize(lambda *edge: np.exp(np.random.randn()))
 

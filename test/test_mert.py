@@ -9,8 +9,8 @@ TODO: Used an edge with features class.
 """
 import numpy as np
 import pylab as pl
-from hypergraphs.semirings import LazySort, ConvexHull, Point
-from hypergraphs.semirings.util import derivation
+from semirings import LazySort, ConvexHull, Point
+from semirings.util import derivation
 from hypergraphs.apps.parser2 import parse, load_grammar
 
 
@@ -23,7 +23,7 @@ def semiring_enumeration(sentence, grammar):
 
 
 def semiring_linesearch(sentence, grammar, weights, step, direction, binary_features, unary_features):
-    from hypergraphs.semirings.maxplus import MaxPlus
+    from semirings import MaxPlus
 
     def binary(sentence,X,Y,Z,i,j,k):
         fs = binary_features(sentence,X,Y,Z,i,j,k)

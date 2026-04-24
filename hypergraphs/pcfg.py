@@ -62,7 +62,7 @@ class PCFG(WCFG):
         return PDA(self).run()
 
 
-from hypergraphs.semirings.util import derivation
+from semirings.util import derivation
 # This is experimental
 class PDA:
     def __init__(self, g):

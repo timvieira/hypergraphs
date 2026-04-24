@@ -1,7 +1,6 @@
 import numpy as np
-from hypergraphs.semirings.logval import LogVal, LogValVector
+from semirings import LogVal, LogValVector, Expectation, SecondOrderExpectation
 from hypergraphs.hypergraph import Hypergraph
-from hypergraphs.semirings import Expectation, SecondOrderExpectation
 from nltk import ImmutableTree as Tree
 #from hypergraphs.alg.insideout import inside_outside_speedup
 #from hypergraphs.alg import insideout
@@ -239,7 +238,7 @@ def test():
 
     # TODO: [2020-10-20 Tue] insideout speedup is failing.
     if 1:
-        from hypergraphs.semirings.vector import make_vector
+        from semirings import make_vector
         V = make_vector(Expectation)
 
         fog = firstorder_graph(E, root)

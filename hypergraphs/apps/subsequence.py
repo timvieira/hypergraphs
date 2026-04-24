@@ -46,8 +46,8 @@ def pretty(score, path):
 
 
 def test():
-    from hypergraphs.semirings import LazySort
-    from hypergraphs.semirings.sampling.lazy2 import Sample
+    from semirings import LazySort
+    from semirings.sampling.lazy2 import Sample
     from arsenal.iterextras import take
 
     # Check that we do not have duplicate alignments
