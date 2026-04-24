@@ -120,25 +120,24 @@ class Hypergraph(object):
                     A[y] += e.weight * w
         return A
 
-    def insideout(self, A, B, X, zero):
-        """Inside-outside algorithm.
+    def insideout(self, inside, outside, X, zero):
+        """Inside-outside speedup.
 
-        - `X`: Function of the `edge => X`.
+        Returns `(khat, xhat)` where
+          khat = inside[root]
+          xhat = sum_e X(e) * outside[head(e)] * prod_b inside[b]
 
-          Elements of X must form a K-module (where K is the type of `A` and
-          `B`).  The key operation is left-multiplication by type `K` which
-          distributes over addition: (x_1 + x_2) k_1 = x_1 k_1 + x_2 k_1.
-
-        - `zero`: Allocate a zero of type `X`.
-
+        `X(e)` must be an element of a K-module where K is the semiring of
+        `inside` and `outside`; left-multiplication by K distributes over
+        addition. `zero` is the additive identity of that module.
         """
         xhat = zero
         for e in self.edges:
-            kbar = A[e.head]
+            kbar = outside[e.head]
             for b in e.body:
-                kbar *= B[b]
-            xhat += X(e) * kbar
-        return xhat
+                kbar *= inside[b]
+            xhat = xhat + X(e) * kbar
+        return inside[self.root], xhat
 
     def _prune_topo(self):
         return self.prune_nodes(set(self.toposort()))
@@ -184,3 +183,5 @@ class Hypergraph(object):
     def _sorted(self):
         from semirings import LazySort
         return self.apply(lambda e: LazySort(e.weight, e))
+
+

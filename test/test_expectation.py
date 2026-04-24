@@ -236,20 +236,18 @@ def test():
     check_equal(Q, b)
 
 
-    # TODO: [2020-10-20 Tue] insideout speedup is failing.
     if 1:
-        from semirings import make_vector
-        V = make_vector(Expectation)
-
         fog = firstorder_graph(E, root)
         B = fog.inside()
         A = fog.outside(B)
         def X(e):
-            p,r,s = e.weight.p, e.weight.r, e.weight.s
-            return Expectation(p*s, p*r*s)
+            # e.weight = Expectation(p, p*r), so e.weight.r already carries p*r.
+            w, s = e.weight, e.weight.s
+            return Expectation(w.p * s, w.r * s)
 
-        khat, xhat = fog.insideout(B, A, X, V.zero)
-        v = SecondOrderExpectation(khat.p, khat.r, xhat.s, xhat.t)
+        zero = Expectation(LogValVector(), LogValVector())
+        khat, xhat = fog.insideout(B, A, X, zero)
+        v = SecondOrderExpectation(khat.p, khat.r, xhat.p, xhat.r)
 
         dump(v)
         check_equal(Q, v)
