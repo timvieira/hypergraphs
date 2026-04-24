@@ -12,7 +12,7 @@ Two responsibilities, run back-to-back:
    exec the setup, run each query under ``redirect_stdout``, and diff
    against the expected output. Exits non-zero on mismatch.
 
-Run as ``python scripts/verify_readme.py``. Writes the rebuilt README
+Run as ``python docs/verify_readme.py``. Writes the rebuilt README
 back to disk.
 """
 
