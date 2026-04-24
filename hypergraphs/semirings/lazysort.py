@@ -75,7 +75,7 @@ class Prod(_LazySort):
         self.b = b
         assert isinstance(a, _LazySort) and isinstance(b, _LazySort), [a,b]
     def __iter__(self):
-        yield from sorted_product(np.product, self.a, self.b)
+        yield from sorted_product(np.prod, self.a, self.b)
     def __repr__(self):
         return f'({self.a} * {self.b})'
 

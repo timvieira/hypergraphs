@@ -16,6 +16,7 @@ def make_vector(R):
             for k,v in self.x.items():
                 c.x[k] = v*x
             return c
+        __rmul__ = __mul__
         def __truediv__(self, x):
             # division by a constant in R
             assert isinstance(x, R), x
