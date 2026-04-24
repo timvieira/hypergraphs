@@ -4,7 +4,7 @@ from itertools import combinations
 
 import numpy as np
 
-from hypergraphs.hypergraph import HypergraphBuilder, _IADD_SENTINEL
+from hypergraphs.builder import HypergraphBuilder, _IADD_SENTINEL
 from semirings import Float
 
 
